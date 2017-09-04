@@ -1,0 +1,200 @@
+//
+//  SFMediator.m
+//  SFMediator
+//
+//  Created by YunSL on 17/8/15.
+//  Copyright © 2017年 YunSL. All rights reserved.
+//
+
+#import "SFMediator.h"
+#import <objc/runtime.h>
+
+@implementation SFMediatorURLInvokeComponent @end
+
+@interface SFMediatorDefaultParser : NSObject<SFMediatorProtocolParser>
+@end
+
+@implementation SFMediatorDefaultParser
+
+- (SFMediatorURLInvokeComponent *)targetInvokeComponentFromURL:(NSString *)url {
+    NSString *encodeURL = [url stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSURL *URL = [NSURL URLWithString:encodeURL];
+    SFMediatorURLInvokeComponent *component = nil;
+    if (URL) {
+        if (URL.scheme.length > 0) {
+            if (URL.host.length > 0) {
+                component = [SFMediatorURLInvokeComponent new];
+                component.protocolName = [URL.host stringByAppendingString:@"Protocol"];
+                component.selector = NSSelectorFromString([URL.path stringByReplacingOccurrencesOfString:@"/" withString:@""]);
+                component.parameters = ({
+                    NSMutableDictionary *params = [NSMutableDictionary new];
+                    NSString *query = URL.query;
+                    if (query.length > 0) {
+                        NSArray *components = [query componentsSeparatedByString:@"&"];
+                        [components enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                            NSArray *elements = [obj componentsSeparatedByString:@"="];
+                            if (elements.count == 2) {
+                                [params setObject:elements.lastObject
+                                           forKey:elements.firstObject];
+                            }
+                        }];
+                    }
+                    params;
+                });
+            }
+        }
+    }
+    return component;
+}
+
+- (id)targetFromProtocol:(Protocol *)protocol {
+    NSString *targetName = [[[NSString alloc] initWithCString:protocol_getName(protocol) encoding:NSUTF8StringEncoding] stringByAppendingString:@"Target"];
+    id target = nil;
+    if ([NSClassFromString(targetName) respondsToSelector:@selector(new)]) {
+        target = [NSClassFromString(targetName) new];
+    }
+    return target;
+}
+
+@end
+
+@interface SFMediatorItem : NSObject
+@property (nonatomic,strong) id protocoltarget;
+@property (nonatomic,strong) id protocolForwardTarget;
+@property (nonatomic,copy) NSString *protocolName;
+@end
+
+@implementation SFMediatorItem
+
+- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
+    NSMethodSignature *signature = [super methodSignatureForSelector:aSelector];
+    if ([self.protocoltarget respondsToSelector:aSelector]) {
+        signature = [self.protocoltarget methodSignatureForSelector:aSelector];
+    }
+    else if ([self.protocolForwardTarget respondsToSelector:aSelector]) {
+        NSLog(@"protocol:%@ 转发未实现的方法[%@] => %@",self.protocolName,NSStringFromSelector(aSelector), NSStringFromClass([self.protocolForwardTarget class]));
+        signature = [self.protocolForwardTarget methodSignatureForSelector:aSelector];
+    }
+    else {
+        NSLog(@"protocol:%@ 抛弃未实现的方法[%@]",self.protocolName,NSStringFromSelector(aSelector));
+    }
+    return signature;
+}
+
+- (void)forwardInvocation:(NSInvocation *)anInvocation {
+    if ([self.protocoltarget respondsToSelector:anInvocation.selector]) {
+        [anInvocation invokeWithTarget:self.protocoltarget];
+    } else if ([self.protocolForwardTarget respondsToSelector:anInvocation.selector]) {
+        [anInvocation invokeWithTarget:self.protocolForwardTarget];
+    } else {
+    }
+}
+
+@end
+
+@interface SFMediator()
+@property (nonatomic,strong) NSMutableDictionary *mediatorItems;
+@end
+
+@implementation SFMediator
+
++ (instancetype)sharedInstance {
+    static id instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [[self alloc] init];
+    });
+    return instance;
+}
+
++ (id)invokeURL:(NSString *)url {
+    id returnValue = nil;
+    SFMediator *manager = [self sharedInstance];
+    SFMediatorURLInvokeComponent *component = [manager.parser targetInvokeComponentFromURL:url];
+    SFMediatorItem *mediatorItem = [self invokeTargetWithProtocol:objc_getProtocol(component.protocolName.UTF8String) forwardTarget:component.forwardTarget];
+    NSMethodSignature *signature = [mediatorItem methodSignatureForSelector:component.selector];
+    if (mediatorItem && signature) {
+        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+        [invocation setTarget:mediatorItem];
+        [invocation setSelector:component.selector];
+        [component.parameters.allValues enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            [invocation setArgument:&obj atIndex:idx + 2];
+        }];
+        //暂时处理返回为void,BOOL,NSInteger,CGFloat,CGSize,CGRect,CGPoint的调用,其他视为返回NSObject对象处理
+        const char *returnType = [invocation.methodSignature methodReturnType];
+        if (strcmp(returnType, @encode(void)) == 0) {
+            [invocation invoke];
+            returnValue = nil;
+        } else if (strcmp(returnType, @encode(BOOL)) == 0) {
+            BOOL result = NO;
+            [invocation invoke];
+            [invocation getReturnValue:&result];
+            returnValue = @(result);
+        } else if (strcmp(returnType, @encode(NSInteger)) == 0) {
+            NSInteger result = 0;
+            [invocation invoke];
+            [invocation getReturnValue:&result];
+            returnValue = @(result);
+        } else if (strcmp(returnType, @encode(CGFloat)) == 0) {
+            CGFloat result = 0.0;
+            [invocation invoke];
+            [invocation getReturnValue:&result];
+            returnValue = @(result);
+        } else if (strcmp(returnType, @encode(CGSize)) == 0) {
+            CGSize result = CGSizeZero;
+            [invocation invoke];
+            [invocation getReturnValue:&result];
+            returnValue = [NSValue valueWithCGSize:result];
+        } else if (strcmp(returnType, @encode(CGRect)) == 0) {
+            CGRect result = CGRectZero;
+            [invocation invoke];
+            [invocation getReturnValue:&result];
+            returnValue = [NSValue valueWithCGRect:result];
+        } else if (strcmp(returnType, @encode(CGPoint)) == 0) {
+            CGPoint result = CGPointZero;
+            [invocation invoke];
+            [invocation getReturnValue:&result];
+            returnValue = [NSValue valueWithCGPoint:result];
+        } else {
+            __autoreleasing NSObject *result = nil;
+            [invocation invoke];
+            [invocation getReturnValue:&result];
+            returnValue = result;
+        }
+    }
+    return returnValue;
+}
+
++ (id)invokeTargetWithProtocol:(Protocol *)protocol forwardTarget:(id)forwardTarget {
+    SFMediator *manager = [self sharedInstance];
+    SFMediatorItem *mediatorItem = nil;
+    NSString *protocolName = [[NSString alloc] initWithCString:protocol_getName(protocol) encoding:NSUTF8StringEncoding];
+    if (protocolName.length > 0) {
+        mediatorItem = [manager.mediatorItems objectForKey:protocolName];
+        if (mediatorItem == nil) {
+            mediatorItem = [SFMediatorItem new];
+            mediatorItem.protocolName = protocolName;
+            mediatorItem.protocolForwardTarget = forwardTarget;
+            mediatorItem.protocoltarget = [manager.parser targetFromProtocol:protocol];
+            [manager.mediatorItems setObject:mediatorItem forKey:protocolName];
+        }
+    }
+    return mediatorItem;
+}
+
+- (NSMutableDictionary *)mediatorItems {
+    return _mediatorItems?:({
+        _mediatorItems = [NSMutableDictionary new];
+        _mediatorItems;
+    });
+}
+
+- (id<SFMediatorProtocolParser>)parser {
+    return _parser?:({
+        _parser = [SFMediatorDefaultParser new];
+        _parser;
+    });
+}
+
+@end
+
