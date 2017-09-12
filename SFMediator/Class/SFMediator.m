@@ -28,17 +28,30 @@
                 component.selector = NSSelectorFromString([URL.path stringByReplacingOccurrencesOfString:@"/" withString:@""]);
                 component.parameters = ({
                     NSMutableDictionary *params = [NSMutableDictionary new];
+                    NSMutableArray *values = [NSMutableArray new];
                     NSString *query = URL.query;
                     if (query.length > 0) {
                         NSArray *components = [query componentsSeparatedByString:@"&"];
                         [components enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
                             NSArray *elements = [obj componentsSeparatedByString:@"="];
                             if (elements.count == 2) {
-                                [params setObject:elements.lastObject
+                                id value = elements.lastObject;
+                                if ([value isKindOfClass:[NSString class]]) {
+                                    NSString *string = (NSString*)value;
+                                    if (string.length == 0) {
+                                        value = [NSNull null];
+                                    }
+                                    else if ([string rangeOfString:@"demo"].location != NSNotFound) {
+                                        value = [SFMediator invokeURL:string];
+                                    }
+                                }
+                                [params setObject:value
                                            forKey:elements.firstObject];
+                                [values addObject:value];
                             }
                         }];
                     }
+                    component.parameterValues = values.copy;
                     params;
                 });
             }
@@ -117,8 +130,30 @@
         NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
         [invocation setTarget:mediatorItem];
         [invocation setSelector:component.selector];
-        [component.parameters.allValues enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            [invocation setArgument:&obj atIndex:idx + 2];
+        [component.parameterValues enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            //此处应该封装一个协议用来处理URL获取的参数类型到OC类型的转换
+            const char *argumentType = [invocation.methodSignature getArgumentTypeAtIndex:idx + 2];
+            
+            if (strcmp(argumentType, @encode(NSInteger)) == 0) {
+                NSInteger argument = [obj integerValue];
+                [invocation setArgument:&argument atIndex:idx + 2];
+            }
+            else if (strcmp(argumentType, @encode(float)) == 0) {
+                float argument = [obj floatValue];
+                [invocation setArgument:&argument atIndex:idx + 2];
+            }
+            else if (strcmp(argumentType, @encode(double)) == 0) {
+                double argument = [obj doubleValue];
+                [invocation setArgument:&argument atIndex:idx + 2];
+            }
+            else if (strcmp(argumentType, @encode(BOOL)) == 0) {
+                BOOL argument = [obj boolValue];
+                [invocation setArgument:&argument atIndex:idx + 2];
+            }
+            else {
+                id argument = obj;
+                [invocation setArgument:&argument atIndex:idx + 2];
+            }
         }];
         //暂时处理返回为void,BOOL,NSInteger,CGFloat,CGSize,CGRect,CGPoint的调用,其他视为返回NSObject对象处理
         const char *returnType = [invocation.methodSignature methodReturnType];

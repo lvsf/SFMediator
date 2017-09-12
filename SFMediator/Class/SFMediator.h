@@ -28,6 +28,7 @@ _Pragma("clang diagnostic ignored \"-Wprotocol\"")\
 @property (nonatomic,assign) SEL selector;
 @property (nonatomic,copy) NSString *protocolName;
 @property (nonatomic,copy) NSDictionary *parameters;
+@property (nonatomic,copy) NSArray *parameterValues;
 @property (nonatomic,strong) id forwardTarget;
 @end
 

@@ -10,6 +10,7 @@
 #import <UIKit/UIKit.h>
 
 @protocol AppProtocol <NSObject>
+- (UISwitch*)rootSwitch;
 - (void)printCurrentDate;
 - (UIViewController*)rootViewControllerWithText:(NSString*)text
                                           count:(NSInteger)count
