@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import "SFMediator+SFAdd.h"
 
 @interface AppDelegate ()
 
@@ -17,6 +18,13 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    
+    UIViewController *rootViewController = [[SFMediator app] rootViewControllerWithText:@"root" count:10 number:3.1415926 model:[UISwitch new] enable:YES];
+    
+    [[SFMediator app] printCurrentDate];
+    
+    NSLog(@"--root:%@",rootViewController);
+    
     return YES;
 }
 
