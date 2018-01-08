@@ -19,6 +19,8 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     
+    [SFMediator sharedInstance].parser.targetURLSchemeForInvoke = @"demo";
+    
     //本地调用,为了方便调用和参数检验项目依赖于各组件对应的协议,协议根据需求由开发者和使用者共同维护或者只由某一方维护
     UIViewController *rootViewController = [[SFMediator app] rootViewControllerWithText:@"root" count:10 number:3.1415926 model:[UISwitch new] enable:YES];
     

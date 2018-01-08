@@ -39,27 +39,42 @@ _Pragma("clang diagnostic ignored \"-Wprotocol\"")\
  
  @return URL协议名
  */
-- (NSString*)targetURLSchemeForInvoke;
+@property (nonatomic,copy) NSString *targetURLSchemeForInvoke;
 /**
  获取指定协议对应的调用对象,默认为协议名称 + Target
  
  @param protocol 指定的协议
  @return 协议调用对象
  */
-- (id)targetFromProtocol:(Protocol*)protocol;
+- (id)targetFromProtocol:(Protocol *)protocol;
 /**
  获取从指定URL中解析得到的调用协议名称,方法的名字以及传入的参数
  
  @param URL 指定的URL
  @return URL解析结果
  */
-- (SFMediatorURLInvokeComponent*)targetInvokeComponentFromURL:(NSURL*)URL;
+- (SFMediatorURLInvokeComponent *)targetInvokeComponentFromURL:(NSURL *)URL;
+/**
+ 设置调用参数
+
+ @param invocation 方法调用
+ @param values     参数
+ */
+- (void)invocation:(NSInvocation *)invocation setArgumentWithValues:(NSArray *)values;
+/**
+ 调用和返回
+
+ @param invocation 方法调用
+ @return           返回值
+ */
+- (id)invocationGetReturnValue:(NSInvocation *)invocation;
 @end
 
 @interface SFMediator : NSObject
 @property (nonatomic,strong) id <SFMediatorProtocolParser> parser;
-+ (BOOL)canInvokeURL:(NSString*)url;
-+ (id)invokeURL:(NSString*)url;
-+ (id)invokeTargetWithProtocol:(Protocol*)protocol
++ (instancetype)sharedInstance;
++ (BOOL)canInvokeURL:(NSString *)url;
++ (id)invokeURL:(NSString *)url;
++ (id)invokeTargetWithProtocol:(Protocol *)protocol
                  forwardTarget:(id)forwardTarget;
 @end

@@ -6,7 +6,7 @@
 //  Copyright © 2017年 YunSL. All rights reserved.
 //
 
-#import "APPProtocolTarget.h"
+#import "AppProtocolTarget.h"
 #import "ViewController.h"
 
 @implementation AppProtocolTarget

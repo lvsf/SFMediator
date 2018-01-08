@@ -9,6 +9,47 @@
 #import "SFMediator.h"
 #import <objc/runtime.h>
 
+typedef NS_ENUM(NSInteger,SFValueType) {
+    SFValueTypeNo = 0,
+    SFValueTypeVoid,
+    SFValueTypeChar,
+    SFValueTypeInt,
+    SFValueTypeLong,
+    SFValueTypeFloat,
+    SFValueTypeDouble,
+    SFValueTypeBool,
+    SFValueTypeSelector,
+    SFValueObject,
+    SFValueTypeCGPoint,
+    SFValueTypeCGSize,
+    SFValueTypeCGRect,
+    SFValueTypePointer
+};
+
+static inline SFValueType SFValueTypeTransform(const char *type){
+    if (strcmp(type, @encode(void)) == 0) {
+        return SFValueTypeVoid;
+    } else if (strcmp(type, @encode(BOOL)) == 0) {
+        return SFValueTypeBool;
+    } else if (strcmp(type, @encode(int)) == 0) {
+        return SFValueTypeInt;
+    } else if (strcmp(type, @encode(long)) == 0) {
+        return SFValueTypeLong;
+    } else if (strcmp(type, @encode(float)) == 0) {
+        return SFValueTypeFloat;
+    } else if (strcmp(type, @encode(double)) == 0) {
+        return SFValueTypeDouble;
+    } else if (strcmp(type, @encode(CGPoint)) == 0) {
+        return SFValueTypeCGPoint;
+    } else if (strcmp(type, @encode(CGSize)) == 0) {
+        return SFValueTypeCGSize;
+    } else if (strcmp(type, @encode(CGRect)) == 0) {
+        return SFValueTypeCGRect;
+    }  else {
+        return SFValueObject;
+    }
+};
+
 static inline NSURL* SFURLPraser(NSString *url) {
     NSString *encodeURL = [url stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     NSURL *URL = [NSURL URLWithString:encodeURL];
@@ -21,9 +62,22 @@ static inline NSURL* SFURLPraser(NSString *url) {
 @end
 
 @implementation SFMediatorDefaultParser
+@synthesize targetURLSchemeForInvoke = _targetURLSchemeForInvoke;
 
-- (NSString *)targetURLSchemeForInvoke {
-    return @"demo";
+- (instancetype)init {
+    if (self = [super init]) {
+        self.targetURLSchemeForInvoke = @"App";
+    }
+    return self;
+}
+
+- (id)targetFromProtocol:(Protocol *)protocol {
+    NSString *targetName = [[[NSString alloc] initWithCString:protocol_getName(protocol) encoding:NSUTF8StringEncoding] stringByAppendingString:@"Target"];
+    id target = nil;
+    if ([NSClassFromString(targetName) respondsToSelector:@selector(new)]) {
+        target = [NSClassFromString(targetName) new];
+    }
+    return target;
 }
 
 - (SFMediatorURLInvokeComponent *)targetInvokeComponentFromURL:(NSURL *)URL {
@@ -42,7 +96,7 @@ static inline NSURL* SFURLPraser(NSString *url) {
                 if (elements.count == 2) {
                     id value = elements.lastObject;
                     if ([value isKindOfClass:[NSString class]]) {
-                        NSString *string = (NSString*)value;
+                        NSString *string = (NSString *)value;
                         if (string.length == 0) {
                             value = [NSNull null];
                         }
@@ -63,13 +117,104 @@ static inline NSURL* SFURLPraser(NSString *url) {
     return component;
 }
 
-- (id)targetFromProtocol:(Protocol *)protocol {
-    NSString *targetName = [[[NSString alloc] initWithCString:protocol_getName(protocol) encoding:NSUTF8StringEncoding] stringByAppendingString:@"Target"];
-    id target = nil;
-    if ([NSClassFromString(targetName) respondsToSelector:@selector(new)]) {
-        target = [NSClassFromString(targetName) new];
+- (void)invocation:(NSInvocation *)invocation setArgumentWithValues:(NSArray *)values {
+    //此处使用NSArray保证参数的顺序
+    [values enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        //此处应该封装一个协议用来处理URL获取的参数类型到OC类型的转换
+        switch (SFValueTypeTransform([invocation.methodSignature getArgumentTypeAtIndex:idx + 2])) {
+            case SFValueTypeBool:{
+                BOOL argument = [obj boolValue];
+                [invocation setArgument:&argument atIndex:idx + 2];
+            }
+                break;
+            case SFValueTypeInt:
+            case SFValueTypeLong:{
+                NSInteger argument = [obj integerValue];
+                [invocation setArgument:&argument atIndex:idx + 2];
+            }
+                break;
+            case SFValueTypeFloat:{
+                float argument = [obj floatValue];
+                [invocation setArgument:&argument atIndex:idx + 2];
+            }
+                break;
+            case SFValueTypeDouble:{
+                double argument = [obj doubleValue];
+                [invocation setArgument:&argument atIndex:idx + 2];
+            }
+                break;
+            default:{
+                id argument = obj;
+                [invocation setArgument:&argument atIndex:idx + 2];
+            }
+                break;
+        }
+    }];
+}
+
+- (id)invocationGetReturnValue:(NSInvocation *)invocation {
+    //暂时处理返回为void,BOOL,NSInteger,CGFloat,CGSize,CGRect,CGPoint的调用,其他视为返回NSObject对象处理
+    id returnValue = nil;
+    const char *returnType = [invocation.methodSignature methodReturnType];
+    switch (SFValueTypeTransform(returnType)) {
+        case SFValueTypeVoid:{
+            [invocation invoke];
+            returnValue = nil;
+        }
+            break;
+        case SFValueTypeBool:{
+            BOOL result = NO;
+            [invocation invoke];
+            [invocation getReturnValue:&result];
+            returnValue = @(result);
+        }
+            break;
+        case SFValueTypeInt:
+        case SFValueTypeLong:{
+            NSInteger result = 0;
+            [invocation invoke];
+            [invocation getReturnValue:&result];
+            returnValue = @(result);
+        }
+            break;
+        case SFValueTypeFloat:
+        case SFValueTypeDouble:{
+            CGFloat result = 0.0;
+            [invocation invoke];
+            [invocation getReturnValue:&result];
+            returnValue = @(result);
+        }
+            break;
+        case SFValueTypeCGPoint:{
+            CGPoint result = CGPointZero;
+            [invocation invoke];
+            [invocation getReturnValue:&result];
+            returnValue = [NSValue valueWithCGPoint:result];
+        }
+            break;
+        case SFValueTypeCGSize:{
+            CGSize result = CGSizeZero;
+            [invocation invoke];
+            [invocation getReturnValue:&result];
+            returnValue = [NSValue valueWithCGSize:result];
+        }
+            break;
+        case SFValueTypeCGRect:{
+            CGRect result = CGRectZero;
+            [invocation invoke];
+            [invocation getReturnValue:&result];
+            returnValue = [NSValue valueWithCGRect:result];
+        }
+            break;
+        default:{
+            __autoreleasing NSObject *result = nil;
+            [invocation invoke];
+            [invocation getReturnValue:&result];
+            returnValue = result;
+        }
+            break;
     }
-    return target;
+    return returnValue;
 }
 
 @end
@@ -138,8 +283,8 @@ static inline NSURL* SFURLPraser(NSString *url) {
 }
 
 + (id)invokeURL:(NSString *)url {
+    id returnValue = nil;
     if ([self canInvokeURL:url]) {
-        id returnValue = nil;
         SFMediator *manager = [self sharedInstance];
         SFMediatorURLInvokeComponent *component = [manager.parser targetInvokeComponentFromURL:SFURLPraser(url)];
         SFMediatorItem *mediatorItem = [self invokeTargetWithProtocol:objc_getProtocol(component.protocolName.UTF8String) forwardTarget:component.forwardTarget];
@@ -148,77 +293,11 @@ static inline NSURL* SFURLPraser(NSString *url) {
             NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
             [invocation setTarget:mediatorItem];
             [invocation setSelector:component.selector];
-            [component.parameterValues enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                //此处应该封装一个协议用来处理URL获取的参数类型到OC类型的转换
-                const char *argumentType = [invocation.methodSignature getArgumentTypeAtIndex:idx + 2];
-                if (strcmp(argumentType, @encode(NSInteger)) == 0) {
-                    NSInteger argument = [obj integerValue];
-                    [invocation setArgument:&argument atIndex:idx + 2];
-                }
-                else if (strcmp(argumentType, @encode(float)) == 0) {
-                    float argument = [obj floatValue];
-                    [invocation setArgument:&argument atIndex:idx + 2];
-                }
-                else if (strcmp(argumentType, @encode(double)) == 0) {
-                    double argument = [obj doubleValue];
-                    [invocation setArgument:&argument atIndex:idx + 2];
-                }
-                else if (strcmp(argumentType, @encode(BOOL)) == 0) {
-                    BOOL argument = [obj boolValue];
-                    [invocation setArgument:&argument atIndex:idx + 2];
-                }
-                else {
-                    id argument = obj;
-                    [invocation setArgument:&argument atIndex:idx + 2];
-                }
-            }];
-            //暂时处理返回为void,BOOL,NSInteger,CGFloat,CGSize,CGRect,CGPoint的调用,其他视为返回NSObject对象处理
-            const char *returnType = [invocation.methodSignature methodReturnType];
-            if (strcmp(returnType, @encode(void)) == 0) {
-                [invocation invoke];
-                returnValue = nil;
-            } else if (strcmp(returnType, @encode(BOOL)) == 0) {
-                BOOL result = NO;
-                [invocation invoke];
-                [invocation getReturnValue:&result];
-                returnValue = @(result);
-            } else if (strcmp(returnType, @encode(NSInteger)) == 0) {
-                NSInteger result = 0;
-                [invocation invoke];
-                [invocation getReturnValue:&result];
-                returnValue = @(result);
-            } else if (strcmp(returnType, @encode(CGFloat)) == 0) {
-                CGFloat result = 0.0;
-                [invocation invoke];
-                [invocation getReturnValue:&result];
-                returnValue = @(result);
-            } else if (strcmp(returnType, @encode(CGSize)) == 0) {
-                CGSize result = CGSizeZero;
-                [invocation invoke];
-                [invocation getReturnValue:&result];
-                returnValue = [NSValue valueWithCGSize:result];
-            } else if (strcmp(returnType, @encode(CGRect)) == 0) {
-                CGRect result = CGRectZero;
-                [invocation invoke];
-                [invocation getReturnValue:&result];
-                returnValue = [NSValue valueWithCGRect:result];
-            } else if (strcmp(returnType, @encode(CGPoint)) == 0) {
-                CGPoint result = CGPointZero;
-                [invocation invoke];
-                [invocation getReturnValue:&result];
-                returnValue = [NSValue valueWithCGPoint:result];
-            } else {
-                __autoreleasing NSObject *result = nil;
-                [invocation invoke];
-                [invocation getReturnValue:&result];
-                returnValue = result;
-            }
+            [manager.parser invocation:invocation setArgumentWithValues:component.parameterValues];
+            returnValue = [manager.parser invocationGetReturnValue:invocation];
         }
-        return returnValue;
     }
-    else {
-        return nil;
-    }
+    return returnValue;
 }
 
 + (id)invokeTargetWithProtocol:(Protocol *)protocol forwardTarget:(id)forwardTarget {
@@ -232,7 +311,7 @@ static inline NSURL* SFURLPraser(NSString *url) {
             mediatorItem.protocolName = protocolName;
             mediatorItem.protocolForwardTarget = forwardTarget;
             mediatorItem.protocoltarget = [manager.parser targetFromProtocol:protocol];
-            [manager.mediatorItems setObject:mediatorItem forKey:protocolName];
+            manager.mediatorItems[protocolName] = mediatorItem;
         }
     }
     return mediatorItem;
@@ -253,4 +332,3 @@ static inline NSURL* SFURLPraser(NSString *url) {
 }
 
 @end
-
