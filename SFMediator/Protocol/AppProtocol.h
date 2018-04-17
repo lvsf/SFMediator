@@ -8,11 +8,13 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "SFMediatorTargetProtocol.h"
 
-@protocol AppProtocol <NSObject>
-- (UISwitch*)rootSwitch;
+@protocol AppProtocol <SFMediatorTargetProtocol>
+@optional
+- (UISwitch *)rootSwitch;
 - (void)printCurrentDate;
-- (UIViewController*)rootViewControllerWithText:(NSString*)text
+- (UIViewController *)rootViewControllerWithText:(NSString*)text
                                           count:(NSInteger)count
                                          number:(CGFloat)number
                                           model:(id)model

@@ -7,237 +7,48 @@
 //
 
 #import "SFMediator.h"
-#import <objc/runtime.h>
+#import "SFMediatorParser.h"
 
-typedef NS_ENUM(NSInteger,SFValueType) {
-    SFValueTypeNo = 0,
-    SFValueTypeVoid,
-    SFValueTypeChar,
-    SFValueTypeInt,
-    SFValueTypeLong,
-    SFValueTypeFloat,
-    SFValueTypeDouble,
-    SFValueTypeBool,
-    SFValueTypeSelector,
-    SFValueObject,
-    SFValueTypeCGPoint,
-    SFValueTypeCGSize,
-    SFValueTypeCGRect,
-    SFValueTypePointer
-};
-
-static inline SFValueType SFValueTypeTransform(const char *type){
-    if (strcmp(type, @encode(void)) == 0) {
-        return SFValueTypeVoid;
-    } else if (strcmp(type, @encode(BOOL)) == 0) {
-        return SFValueTypeBool;
-    } else if (strcmp(type, @encode(int)) == 0) {
-        return SFValueTypeInt;
-    } else if (strcmp(type, @encode(long)) == 0) {
-        return SFValueTypeLong;
-    } else if (strcmp(type, @encode(float)) == 0) {
-        return SFValueTypeFloat;
-    } else if (strcmp(type, @encode(double)) == 0) {
-        return SFValueTypeDouble;
-    } else if (strcmp(type, @encode(CGPoint)) == 0) {
-        return SFValueTypeCGPoint;
-    } else if (strcmp(type, @encode(CGSize)) == 0) {
-        return SFValueTypeCGSize;
-    } else if (strcmp(type, @encode(CGRect)) == 0) {
-        return SFValueTypeCGRect;
-    }  else {
-        return SFValueObject;
-    }
-};
-
-static inline NSURL* SFURLPraser(NSString *url) {
+static inline NSURL *SFURLPraser(NSString *url) {
     NSString *encodeURL = [url stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     NSURL *URL = [NSURL URLWithString:encodeURL];
     return URL;
 }
 
-@implementation SFMediatorURLInvokeComponent @end
-
-@interface SFMediatorDefaultParser : NSObject<SFMediatorProtocolParser>
-@end
-
-@implementation SFMediatorDefaultParser
-@synthesize targetURLSchemeForInvoke = _targetURLSchemeForInvoke;
-
-- (instancetype)init {
-    if (self = [super init]) {
-        self.targetURLSchemeForInvoke = @"App";
-    }
-    return self;
+static inline NSError *SFMediatorError(NSInteger code,NSString *message) {
+    return [NSError errorWithDomain:@"SFMediatorError" code:code userInfo:@{NSLocalizedDescriptionKey:message?:@""}];
 }
 
-- (id)targetFromProtocol:(Protocol *)protocol {
-    NSString *targetName = [[[NSString alloc] initWithCString:protocol_getName(protocol) encoding:NSUTF8StringEncoding] stringByAppendingString:@"Target"];
-    id target = nil;
-    if ([NSClassFromString(targetName) respondsToSelector:@selector(new)]) {
-        target = [NSClassFromString(targetName) new];
-    }
-    return target;
-}
+static inline void SFMediatorLog(NSString *message) {
+#ifdef DEBUG
+    NSLog(@"[SFMediator] %@",message);
+#endif
+};
 
-- (SFMediatorURLInvokeComponent *)targetInvokeComponentFromURL:(NSURL *)URL {
-    SFMediatorURLInvokeComponent *component = [SFMediatorURLInvokeComponent new];
-    component.scheme = URL.scheme;
-    component.protocolName = [URL.host stringByAppendingString:@"Protocol"];
-    component.selector = NSSelectorFromString([URL.path stringByReplacingOccurrencesOfString:@"/" withString:@""]);
-    component.parameters = ({
-        NSMutableDictionary *params = [NSMutableDictionary new];
-        NSMutableArray *values = [NSMutableArray new];
-        NSString *query = URL.query;
-        if (query.length > 0) {
-            NSArray *components = [query componentsSeparatedByString:@"&"];
-            [components enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                NSArray *elements = [obj componentsSeparatedByString:@"="];
-                if (elements.count == 2) {
-                    id value = elements.lastObject;
-                    if ([value isKindOfClass:[NSString class]]) {
-                        NSString *string = (NSString *)value;
-                        if (string.length == 0) {
-                            value = [NSNull null];
-                        }
-                        else if ([SFMediator canInvokeURL:string]) {
-                            value = [SFMediator invokeURL:string];
-                            value = value?:[NSNull null];
-                        }
-                    }
-                    [params setObject:value
-                               forKey:elements.firstObject];
-                    [values addObject:value];
-                }
-            }];
-        }
-        component.parameterValues = values.copy;
-        params;
-    });
-    return component;
-}
-
-- (void)invocation:(NSInvocation *)invocation setArgumentWithValues:(NSArray *)values {
-    //此处使用NSArray保证参数的顺序
-    [values enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        //此处应该封装一个协议用来处理URL获取的参数类型到OC类型的转换
-        switch (SFValueTypeTransform([invocation.methodSignature getArgumentTypeAtIndex:idx + 2])) {
-            case SFValueTypeBool:{
-                BOOL argument = [obj boolValue];
-                [invocation setArgument:&argument atIndex:idx + 2];
-            }
-                break;
-            case SFValueTypeInt:
-            case SFValueTypeLong:{
-                NSInteger argument = [obj integerValue];
-                [invocation setArgument:&argument atIndex:idx + 2];
-            }
-                break;
-            case SFValueTypeFloat:{
-                float argument = [obj floatValue];
-                [invocation setArgument:&argument atIndex:idx + 2];
-            }
-                break;
-            case SFValueTypeDouble:{
-                double argument = [obj doubleValue];
-                [invocation setArgument:&argument atIndex:idx + 2];
-            }
-                break;
-            default:{
-                id argument = obj;
-                [invocation setArgument:&argument atIndex:idx + 2];
-            }
-                break;
-        }
-    }];
-}
-
-- (id)invocationGetReturnValue:(NSInvocation *)invocation {
-    //暂时处理返回为void,BOOL,NSInteger,CGFloat,CGSize,CGRect,CGPoint的调用,其他视为返回NSObject对象处理
-    id returnValue = nil;
-    const char *returnType = [invocation.methodSignature methodReturnType];
-    switch (SFValueTypeTransform(returnType)) {
-        case SFValueTypeVoid:{
-            [invocation invoke];
-            returnValue = nil;
-        }
-            break;
-        case SFValueTypeBool:{
-            BOOL result = NO;
-            [invocation invoke];
-            [invocation getReturnValue:&result];
-            returnValue = @(result);
-        }
-            break;
-        case SFValueTypeInt:
-        case SFValueTypeLong:{
-            NSInteger result = 0;
-            [invocation invoke];
-            [invocation getReturnValue:&result];
-            returnValue = @(result);
-        }
-            break;
-        case SFValueTypeFloat:
-        case SFValueTypeDouble:{
-            CGFloat result = 0.0;
-            [invocation invoke];
-            [invocation getReturnValue:&result];
-            returnValue = @(result);
-        }
-            break;
-        case SFValueTypeCGPoint:{
-            CGPoint result = CGPointZero;
-            [invocation invoke];
-            [invocation getReturnValue:&result];
-            returnValue = [NSValue valueWithCGPoint:result];
-        }
-            break;
-        case SFValueTypeCGSize:{
-            CGSize result = CGSizeZero;
-            [invocation invoke];
-            [invocation getReturnValue:&result];
-            returnValue = [NSValue valueWithCGSize:result];
-        }
-            break;
-        case SFValueTypeCGRect:{
-            CGRect result = CGRectZero;
-            [invocation invoke];
-            [invocation getReturnValue:&result];
-            returnValue = [NSValue valueWithCGRect:result];
-        }
-            break;
-        default:{
-            __autoreleasing NSObject *result = nil;
-            [invocation invoke];
-            [invocation getReturnValue:&result];
-            returnValue = result;
-        }
-            break;
-    }
-    return returnValue;
-}
-
-@end
-
+#pragma mark - SFMediatorItem/调用对象
 @interface SFMediatorItem : NSObject
+@property (nonatomic,copy) NSString *protocolName;
 @property (nonatomic,strong) id protocoltarget;
 @property (nonatomic,strong) id protocolForwardTarget;
-@property (nonatomic,copy) NSString *protocolName;
+@property (nonatomic,strong) UIWindow *alertWindow;
 @end
 
 @implementation SFMediatorItem
 
+- (void)throwErrorForSelector:(SEL)aSelector {
+    SFMediatorLog([NSString stringWithFormat:@"无法响应的方法[%@ %@]",self.protocolName,NSStringFromSelector(aSelector)]);
+}
+
 - (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
-    NSMethodSignature *signature = [super methodSignatureForSelector:aSelector];
+    NSMethodSignature *signature = nil;
     if ([self.protocoltarget respondsToSelector:aSelector]) {
         signature = [self.protocoltarget methodSignatureForSelector:aSelector];
     }
     else if ([self.protocolForwardTarget respondsToSelector:aSelector]) {
-        NSLog(@"protocol:%@ 转发未实现的方法[%@] => %@",self.protocolName,NSStringFromSelector(aSelector), NSStringFromClass([self.protocolForwardTarget class]));
         signature = [self.protocolForwardTarget methodSignatureForSelector:aSelector];
     }
     else {
-        NSLog(@"protocol:%@ 抛弃未实现的方法[%@]",self.protocolName,NSStringFromSelector(aSelector));
+        signature = [super methodSignatureForSelector:@selector(throwErrorForSelector:)];
     }
     return signature;
 }
@@ -248,75 +59,132 @@ static inline NSURL* SFURLPraser(NSString *url) {
     } else if ([self.protocolForwardTarget respondsToSelector:anInvocation.selector]) {
         [anInvocation invokeWithTarget:self.protocolForwardTarget];
     } else {
+        [self throwErrorForSelector:anInvocation.selector];
     }
 }
 
 @end
 
-@interface SFMediator()
+#pragma mark - SFMediator
+@interface SFMediator()<UIApplicationDelegate>
 @property (nonatomic,strong) NSMutableDictionary *mediatorItems;
 @end
 
 @implementation SFMediator
 
+#pragma mark - public
 + (instancetype)sharedInstance {
     static id instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        instance = [[self alloc] init];
+        instance = [self new];
     });
     return instance;
 }
 
-+ (BOOL)canInvokeURL:(NSString *)url {
-    SFMediator *manager = [self sharedInstance];
-    NSURL *URL = SFURLPraser(url);
-    BOOL can = NO;
-    if (URL) {
-        if ([URL.scheme isEqualToString:[manager.parser targetURLSchemeForInvoke]]) {
-            if (URL.path.length > 0) {
-                can = YES;
-            }
-        }
-    }
-    return can;
++ (BOOL)canOpenURL:(NSString *)url {
+    NSError *error = [self p_canOpenURL:SFURLPraser(url)];
+    return !error;
 }
 
-+ (id)invokeURL:(NSString *)url {
++ (id)openURL:(NSString *)url {
     id returnValue = nil;
-    if ([self canInvokeURL:url]) {
+    NSURL *URL = SFURLPraser(url);
+    NSError *error = [self p_canOpenURL:URL];
+    if (!error) {
         SFMediator *manager = [self sharedInstance];
-        SFMediatorURLInvokeComponent *component = [manager.parser targetInvokeComponentFromURL:SFURLPraser(url)];
-        SFMediatorItem *mediatorItem = [self invokeTargetWithProtocol:objc_getProtocol(component.protocolName.UTF8String) forwardTarget:component.forwardTarget];
-        NSMethodSignature *signature = [mediatorItem methodSignatureForSelector:component.selector];
-        if (mediatorItem && signature) {
+        NSString *protocolName = [manager.parser invocationProtocolNameFromURL:URL];
+        SEL selector = [manager.parser invocationSelectorFromURL:URL];
+        id parameter = [manager.parser invocationParameterFromURL:URL];
+        id protocoltarget = [manager.parser invocationTargetFromProtocolName:protocolName];
+        id forwardTarget = nil;
+        error = [self p_canInvokeWithProtocol:protocolName
+                               protocoltarget:protocoltarget
+                                forwardTarget:forwardTarget];
+        if (!error) {
+            SFMediatorItem *mediatorItem = [self p_invokeTargetWithProtocol:protocolName
+                                                             protocoltarget:protocoltarget
+                                                              forwardTarget:forwardTarget
+                                                                    fromURL:YES];
+            NSMethodSignature *signature = [mediatorItem methodSignatureForSelector:selector];
             NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
             [invocation setTarget:mediatorItem];
-            [invocation setSelector:component.selector];
-            [manager.parser invocation:invocation setArgumentWithValues:component.parameterValues];
+            [invocation setSelector:selector];
+            [manager.parser invocation:invocation setArgumentWithParameter:parameter];
             returnValue = [manager.parser invocationGetReturnValue:invocation];
+            SFMediatorLog([NSString stringWithFormat:@"open success URL:%@ \nparameter:%@ \nreturnValue:%@",url,parameter,returnValue]);
         }
+    }
+    if (error) {
+        SFMediatorLog(error.localizedDescription);
     }
     return returnValue;
 }
 
 + (id)invokeTargetWithProtocol:(Protocol *)protocol forwardTarget:(id)forwardTarget {
     SFMediator *manager = [self sharedInstance];
-    SFMediatorItem *mediatorItem = nil;
-    NSString *protocolName = [[NSString alloc] initWithCString:protocol_getName(protocol) encoding:NSUTF8StringEncoding];
-    if (protocolName.length > 0) {
-        mediatorItem = [manager.mediatorItems objectForKey:protocolName];
-        if (mediatorItem == nil) {
-            mediatorItem = [SFMediatorItem new];
-            mediatorItem.protocolName = protocolName;
-            mediatorItem.protocolForwardTarget = forwardTarget;
-            mediatorItem.protocoltarget = [manager.parser targetFromProtocol:protocol];
-            manager.mediatorItems[protocolName] = mediatorItem;
-        }
+    NSString *protocolName = protocol?[NSString stringWithCString:protocol_getName(protocol) encoding:NSUTF8StringEncoding]:nil;
+    id protocoltarget = protocolName?[manager.parser invocationTargetFromProtocolName:protocolName]:nil;
+    NSError *error = [self p_canInvokeWithProtocol:protocolName
+                                    protocoltarget:protocoltarget
+                                     forwardTarget:forwardTarget];
+    return error?:[self p_invokeTargetWithProtocol:protocolName
+                                    protocoltarget:protocoltarget
+                                     forwardTarget:forwardTarget
+                                           fromURL:NO];
+}
+
+#pragma mark - private
++ (NSError *)p_canOpenURL:(NSURL *)URL {
+    NSError *error = nil;
+    SFMediator *manager = [self sharedInstance];
+    if (!URL.scheme || ![manager.parser.invocationURLSchemes containsObject:URL.scheme]) {
+        error = SFMediatorError(0, [NSString stringWithFormat:@"无法响应的scheme:%@",URL.scheme]);
+    }
+    return error;
+}
+
++ (NSError *)p_canInvokeWithProtocol:(NSString *)protocolName protocoltarget:(id)protocoltarget forwardTarget:(id)forwardTarget {
+    NSError *error = nil;
+    if (!objc_getProtocol(protocolName.UTF8String)) {
+        error = SFMediatorError(0, [NSString stringWithFormat:@"无法响应的protocol:%@",protocolName]);
+    }
+    else if (!protocoltarget) {
+        error = SFMediatorError(0,[NSString stringWithFormat:@"无法获取到正确的响应对象:%@",protocolName]);
+    }
+    return error;
+}
+
++ (id)p_invokeTargetWithProtocol:(NSString *)protocolName protocoltarget:(id)protocoltarget forwardTarget:(id)forwardTarget fromURL:(BOOL)fromURL {
+    SFMediator *manager = [self sharedInstance];
+    SFMediatorItem *mediatorItem = manager.mediatorItems[protocolName];
+    if (mediatorItem == nil) {
+        mediatorItem = [SFMediatorItem new];
+        mediatorItem.protocolName = protocolName;
+        mediatorItem.protocoltarget = protocoltarget;
+        mediatorItem.protocolForwardTarget = forwardTarget;
+        manager.mediatorItems[protocolName] = mediatorItem;
     }
     return mediatorItem;
 }
 
+#pragma mark - UIApplicationDelegate
+//iOS9
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
+    return NO;
+}
+
+//iOS4.2-iOS9
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+    return NO;
+}
+
+//iOS2-iOS9
+- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url {
+    return NO;
+}
+
+#pragma mark - set/get
 - (NSMutableDictionary *)mediatorItems {
     return _mediatorItems?:({
         _mediatorItems = [NSMutableDictionary new];
@@ -324,11 +192,48 @@ static inline NSURL* SFURLPraser(NSString *url) {
     });
 }
 
-- (id<SFMediatorProtocolParser>)parser {
+- (id<SFMediatorParserProtocol>)parser {
     return _parser?:({
-        _parser = [SFMediatorDefaultParser new];
+        _parser = [SFMediatorParser new];
         _parser;
     });
 }
+
+//- (void)forwardInvocation:(NSInvocation *)anInvocation {
+//    [self.mediatorItems enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, SFMediatorItem *obj, BOOL * _Nonnull stop) {
+//        if ([obj.protocoltarget conformsToProtocol:@protocol(UIApplicationDelegate)]) {
+//            if ([obj.protocoltarget respondsToSelector:anInvocation.selector]) {
+//                [anInvocation invokeWithTarget:obj.protocoltarget];
+//            }
+//        }
+//    }];
+//    SEL swizzleMethod = NSSelectorFromString(SFSwizzleMethodName(anInvocation.selector));
+//    if ([[UIApplication sharedApplication].delegate respondsToSelector:swizzleMethod]) {
+//        [anInvocation setSelector:swizzleMethod];
+//        [anInvocation invokeWithTarget:[UIApplication sharedApplication].delegate];
+//    }
+//}
+
+//- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
+//    NSMethodSignature *methodSignature = [super methodSignatureForSelector:aSelector];
+//    if (methodSignature == nil) {
+//        methodSignature = [(NSObject *)[UIApplication sharedApplication].delegate methodSignatureForSelector:aSelector];
+//    }
+//    return methodSignature;
+//}
+//
+//- (BOOL)respondsToSelector:(SEL)aSelector {
+//    BOOL responds = [super respondsToSelector:aSelector];
+//    return responds;
+//}
+//
+//- (void)sf_forwardInvocation:(NSInvocation *)anInvocation {
+//    if ([NSStringFromSelector(anInvocation.selector) hasPrefix:@"application"]) {
+//        [anInvocation invokeWithTarget:[SFMediator sharedInstance]];
+//    }
+//    else {
+//        [self sf_forwardInvocation:anInvocation];
+//    }
+//}
 
 @end

@@ -8,18 +8,16 @@
 
 #import "SFMediator+SFAdd.h"
 
-SFForwardTargetBegin(App)
-
-- (void)printCurrentDate {
-    NSLog(@"date:%@",[NSDate date]);
-}
-
-SFForwardTargetEnd()
-
 @implementation SFMediator (SFAdd)
 
 + (id<AppProtocol>)app {
-    return [self invokeTargetWithProtocol:@protocol(AppProtocol) forwardTarget:[AppForwardTarget new]];
+    return [self invokeTargetWithProtocol:@protocol(AppProtocol)
+                            forwardTarget:nil];
+}
+
++ (id<CommonProtocol>)common {
+    return [self invokeTargetWithProtocol:@protocol(CommonProtocol)
+                            forwardTarget:nil];
 }
 
 @end

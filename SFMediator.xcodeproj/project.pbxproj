@@ -17,9 +17,13 @@
 		179FE25C1F67AE6300CB6DD7 /* AppProtocolTarget.m in Sources */ = {isa = PBXBuildFile; fileRef = 179FE2581F67AE6300CB6DD7 /* AppProtocolTarget.m */; };
 		179FE25D1F67AE6300CB6DD7 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 179FE25A1F67AE6300CB6DD7 /* ViewController.m */; };
 		179FE2601F67AE7900CB6DD7 /* SFMediator+SFAdd.m in Sources */ = {isa = PBXBuildFile; fileRef = 179FE25F1F67AE7900CB6DD7 /* SFMediator+SFAdd.m */; };
+		17F80577207F43D700E30404 /* UIApplication+SFAddMediator.m in Sources */ = {isa = PBXBuildFile; fileRef = 17F80576207F43D700E30404 /* UIApplication+SFAddMediator.m */; };
+		17F8057B207F4C8900E30404 /* SFMediatorParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 17F8057A207F4C8900E30404 /* SFMediatorParser.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		172456D020858C710008F06D /* SFMediatorTargetProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SFMediatorTargetProtocol.h; sourceTree = "<group>"; };
+		172456D82085D4160008F06D /* CommonProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommonProtocol.h; sourceTree = "<group>"; };
 		17710E271F5CE84000C69DF7 /* SFMediator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SFMediator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		17710E2B1F5CE84000C69DF7 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		17710E341F5CE84000C69DF7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -37,6 +41,11 @@
 		179FE25A1F67AE6300CB6DD7 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		179FE25E1F67AE7900CB6DD7 /* SFMediator+SFAdd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SFMediator+SFAdd.h"; sourceTree = "<group>"; };
 		179FE25F1F67AE7900CB6DD7 /* SFMediator+SFAdd.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SFMediator+SFAdd.m"; sourceTree = "<group>"; };
+		17F80575207F43D700E30404 /* UIApplication+SFAddMediator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIApplication+SFAddMediator.h"; sourceTree = "<group>"; };
+		17F80576207F43D700E30404 /* UIApplication+SFAddMediator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIApplication+SFAddMediator.m"; sourceTree = "<group>"; };
+		17F80579207F4C8900E30404 /* SFMediatorParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SFMediatorParser.h; sourceTree = "<group>"; };
+		17F8057A207F4C8900E30404 /* SFMediatorParser.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SFMediatorParser.m; sourceTree = "<group>"; };
+		17F8057C207F4CBC00E30404 /* SFMediatorParserProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SFMediatorParserProtocol.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +103,12 @@
 			children = (
 				179FE24B1F67AD2800CB6DD7 /* SFMediator.h */,
 				179FE24C1F67AD2800CB6DD7 /* SFMediator.m */,
+				17F80579207F4C8900E30404 /* SFMediatorParser.h */,
+				17F8057A207F4C8900E30404 /* SFMediatorParser.m */,
+				17F8057C207F4CBC00E30404 /* SFMediatorParserProtocol.h */,
+				172456D020858C710008F06D /* SFMediatorTargetProtocol.h */,
+				17F80575207F43D700E30404 /* UIApplication+SFAddMediator.h */,
+				17F80576207F43D700E30404 /* UIApplication+SFAddMediator.m */,
 			);
 			path = Class;
 			sourceTree = "<group>";
@@ -117,6 +132,7 @@
 				179FE2581F67AE6300CB6DD7 /* AppProtocolTarget.m */,
 				179FE2591F67AE6300CB6DD7 /* ViewController.h */,
 				179FE25A1F67AE6300CB6DD7 /* ViewController.m */,
+				172456D82085D4160008F06D /* CommonProtocol.h */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -195,8 +211,10 @@
 				179FE25D1F67AE6300CB6DD7 /* ViewController.m in Sources */,
 				179FE25B1F67AE6300CB6DD7 /* AppDelegate.m in Sources */,
 				179FE2601F67AE7900CB6DD7 /* SFMediator+SFAdd.m in Sources */,
+				17F8057B207F4C8900E30404 /* SFMediatorParser.m in Sources */,
 				179FE24D1F67AD2800CB6DD7 /* SFMediator.m in Sources */,
 				179FE2501F67AD6500CB6DD7 /* AppProtocol.h in Sources */,
+				17F80577207F43D700E30404 /* UIApplication+SFAddMediator.m in Sources */,
 				17710E2C1F5CE84000C69DF7 /* main.m in Sources */,
 				179FE25C1F67AE6300CB6DD7 /* AppProtocolTarget.m in Sources */,
 			);

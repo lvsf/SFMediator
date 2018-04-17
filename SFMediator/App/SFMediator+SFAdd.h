@@ -8,7 +8,9 @@
 
 #import "SFMediator.h"
 #import "AppProtocol.h"
+#import "CommonProtocol.h"
 
 @interface SFMediator (SFAdd)
 + (id<AppProtocol>)app;
++ (id<CommonProtocol>)common;
 @end

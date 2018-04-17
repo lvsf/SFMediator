@@ -6,75 +6,51 @@
 //  Copyright © 2017年 YunSL. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
+#import "SFMediatorParserProtocol.h"
+#import "SFMediatorTargetProtocol.h"
 
-/**
- 快速声明一个用来转发协议的类
- 
- @param name 协议定义的名称前缀 例如 Book(协议名称前缀) + ForwardTarget(固定名称)
- @return
- */
-#define SFForwardTargetBegin(name) _Pragma("clang diagnostic push")\
-_Pragma("clang diagnostic ignored \"-Wprotocol\"")\
-@interface name##ForwardTarget : NSObject<name##Protocol>\
-@end\
-@implementation name##ForwardTarget
-
-#define SFForwardTargetEnd() _Pragma("clang diagnostic pop")\
-@end
-
-@interface SFMediatorURLInvokeComponent : NSObject
-@property (nonatomic,assign) SEL selector;
-@property (nonatomic,copy) NSString *scheme;
-@property (nonatomic,copy) NSString *protocolName;
-@property (nonatomic,copy) NSDictionary *parameters;
-@property (nonatomic,copy) NSArray *parameterValues;
-@property (nonatomic,strong) id forwardTarget;
-@end
-
-@protocol SFMediatorProtocolParser <NSObject>
-/**
- 可远程响应的URL协议名
- 
- @return URL协议名
- */
-@property (nonatomic,copy) NSString *targetURLSchemeForInvoke;
-/**
- 获取指定协议对应的调用对象,默认为协议名称 + Target
- 
- @param protocol 指定的协议
- @return 协议调用对象
- */
-- (id)targetFromProtocol:(Protocol *)protocol;
-/**
- 获取从指定URL中解析得到的调用协议名称,方法的名字以及传入的参数
- 
- @param URL 指定的URL
- @return URL解析结果
- */
-- (SFMediatorURLInvokeComponent *)targetInvokeComponentFromURL:(NSURL *)URL;
-/**
- 设置调用参数
-
- @param invocation 方法调用
- @param values     参数
- */
-- (void)invocation:(NSInvocation *)invocation setArgumentWithValues:(NSArray *)values;
-/**
- 调用和返回
-
- @param invocation 方法调用
- @return           返回值
- */
-- (id)invocationGetReturnValue:(NSInvocation *)invocation;
-@end
+#define SFMediatorRegisterTarget(x) \
++ (void)load {\
+    [SFMediator invokeTargetWithProtocol:x forwardTarget:nil];\
+}
 
 @interface SFMediator : NSObject
-@property (nonatomic,strong) id <SFMediatorProtocolParser> parser;
+
+/**
+ 解析对象
+ */
+@property (nonatomic,strong) id <SFMediatorParserProtocol> parser;
+
+/**
+ 单例对象
+
+ @return -
+ */
 + (instancetype)sharedInstance;
-+ (BOOL)canInvokeURL:(NSString *)url;
-+ (id)invokeURL:(NSString *)url;
+
+/**
+ 是否能打开URL
+
+ @param url -
+ @return -
+ */
++ (BOOL)canOpenURL:(NSString *)url;
+
+/**
+ 打开URL//远程调用
+
+ @param url -
+ @return -
+ */
++ (id)openURL:(NSString *)url;
+
+/**
+ 获取调用对象//本地调用
+
+ @param protocol       协议对象
+ @param forwardTarget  转发对象
+ @return -
+ */
 + (id)invokeTargetWithProtocol:(Protocol *)protocol
                  forwardTarget:(id)forwardTarget;
 @end
