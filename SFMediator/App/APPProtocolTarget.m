@@ -8,8 +8,11 @@
 
 #import "AppProtocolTarget.h"
 #import "ViewController.h"
+#import "SFMediator.h"
 
 @implementation AppProtocolTarget
+
+SFMediatorRegisterTarget(@protocol(AppProtocol))
 
 - (UISwitch *)rootSwitch {
     return [UISwitch new];
@@ -19,6 +22,19 @@
     ViewController *rootViewController = [ViewController new];
     NSLog(@"SEL:%@ text:%@ count:%@ number:%@ model:%@ enable:%@",NSStringFromSelector(_cmd),text,@(count),@(number),model,@(enable));
     return rootViewController;
+}
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    NSLog(@"[AppProtocolTarget] didFinishLaunchingWithOptions");
+    return YES;
+}
+
+- (void)application:(UIApplication *)application didChangeStatusBarFrame:(CGRect)oldStatusBarFrame {
+    NSLog(@"[AppProtocolTarget] didChangeStatusBarFrame:%@",NSStringFromCGRect(oldStatusBarFrame));
+}
+
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+    NSLog(@"[AppProtocolTarget] applicationDidBecomeActive");
 }
 
 @end

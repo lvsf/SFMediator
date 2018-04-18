@@ -67,7 +67,7 @@ static inline void SFMediatorLog(NSString *message) {
 
 #pragma mark - SFMediator
 @interface SFMediator()<UIApplicationDelegate>
-@property (nonatomic,strong) NSMutableDictionary *mediatorItems;
+@property (nonatomic,strong) NSMutableDictionary<NSString *,SFMediatorItem *> *mediatorItems;
 @end
 
 @implementation SFMediator
@@ -80,6 +80,18 @@ static inline void SFMediatorLog(NSString *message) {
         instance = [self new];
     });
     return instance;
+}
+
++ (BOOL)canInvokeWithSelector:(SEL)selector {
+    __block BOOL invoke = NO;
+    [[SFMediator sharedInstance].mediatorItems enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, SFMediatorItem * _Nonnull obj, BOOL * _Nonnull stop) {
+        if ([obj.protocoltarget respondsToSelector:selector] ||
+            [obj.protocolForwardTarget respondsToSelector:selector]) {
+            invoke = YES;
+            *stop = YES;
+        }
+    }];
+    return invoke;
 }
 
 + (BOOL)canOpenURL:(NSString *)url {
@@ -169,23 +181,69 @@ static inline void SFMediatorLog(NSString *message) {
 }
 
 #pragma mark - UIApplicationDelegate
+#pragma mark - 转发处理
+- (NSMethodSignature *)sf_mediator_methodSignatureForSelector:(SEL)aSelector {
+    __block NSMethodSignature *methodSignature = [[SFMediator sharedInstance] sf_mediator_methodSignatureForSelector:aSelector];
+    if (SFMediatorShouldSwizzleSEL(aSelector)) {
+        if (methodSignature == nil) {
+            [[SFMediator sharedInstance].mediatorItems enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, SFMediatorItem * _Nonnull obj, BOOL * _Nonnull stop) {
+                if ([obj.protocoltarget respondsToSelector:aSelector]) {
+                    methodSignature = [obj.protocoltarget methodSignatureForSelector:aSelector];
+                    *stop = YES;
+                }
+            }];
+        }
+    }
+    return methodSignature;
+}
+
+- (void)sf_mediator_forwardInvocation:(NSInvocation *)anInvocation {
+    if (SFMediatorShouldSwizzleSEL(anInvocation.selector)) {
+        SEL tempSEL = anInvocation.selector;
+        if ([self respondsToSelector:anInvocation.selector]) {
+            [anInvocation setSelector:SFMediatorSwizzleSEL(anInvocation.selector)];
+            [anInvocation invokeWithTarget:self];
+        }
+        [anInvocation setSelector:tempSEL];
+        [[SFMediator sharedInstance].mediatorItems enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, SFMediatorItem * _Nonnull obj, BOOL * _Nonnull stop) {
+            if ([obj.protocoltarget respondsToSelector:anInvocation.selector]) {
+                [anInvocation invokeWithTarget:obj.protocoltarget];
+            }
+        }];
+    }
+    else {
+        [[SFMediator sharedInstance] sf_mediator_forwardInvocation:anInvocation];
+    }
+}
+
+#pragma mark - 外部URL处理
+- (BOOL)sf_mediator_application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    [self sf_mediator_application:application didFinishLaunchingWithOptions:launchOptions];
+    [[SFMediator sharedInstance].mediatorItems enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, SFMediatorItem * _Nonnull obj, BOOL * _Nonnull stop) {
+        if ([obj.protocoltarget respondsToSelector:@selector(application:didFinishLaunchingWithOptions:)]) {
+            [obj.protocoltarget application:application didFinishLaunchingWithOptions:launchOptions];
+        }
+    }];
+    return YES;
+}
+
 //iOS9
-- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
+- (BOOL)sf_mediator_application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
     return NO;
 }
 
 //iOS4.2-iOS9
-- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+- (BOOL)sf_mediator_application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
     return NO;
 }
 
 //iOS2-iOS9
-- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url {
+- (BOOL)sf_mediator_application:(UIApplication *)application handleOpenURL:(NSURL *)url {
     return NO;
 }
 
 #pragma mark - set/get
-- (NSMutableDictionary *)mediatorItems {
+- (NSMutableDictionary<NSString *,SFMediatorItem *> *)mediatorItems {
     return _mediatorItems?:({
         _mediatorItems = [NSMutableDictionary new];
         _mediatorItems;
@@ -198,42 +256,5 @@ static inline void SFMediatorLog(NSString *message) {
         _parser;
     });
 }
-
-//- (void)forwardInvocation:(NSInvocation *)anInvocation {
-//    [self.mediatorItems enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, SFMediatorItem *obj, BOOL * _Nonnull stop) {
-//        if ([obj.protocoltarget conformsToProtocol:@protocol(UIApplicationDelegate)]) {
-//            if ([obj.protocoltarget respondsToSelector:anInvocation.selector]) {
-//                [anInvocation invokeWithTarget:obj.protocoltarget];
-//            }
-//        }
-//    }];
-//    SEL swizzleMethod = NSSelectorFromString(SFSwizzleMethodName(anInvocation.selector));
-//    if ([[UIApplication sharedApplication].delegate respondsToSelector:swizzleMethod]) {
-//        [anInvocation setSelector:swizzleMethod];
-//        [anInvocation invokeWithTarget:[UIApplication sharedApplication].delegate];
-//    }
-//}
-
-//- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
-//    NSMethodSignature *methodSignature = [super methodSignatureForSelector:aSelector];
-//    if (methodSignature == nil) {
-//        methodSignature = [(NSObject *)[UIApplication sharedApplication].delegate methodSignatureForSelector:aSelector];
-//    }
-//    return methodSignature;
-//}
-//
-//- (BOOL)respondsToSelector:(SEL)aSelector {
-//    BOOL responds = [super respondsToSelector:aSelector];
-//    return responds;
-//}
-//
-//- (void)sf_forwardInvocation:(NSInvocation *)anInvocation {
-//    if ([NSStringFromSelector(anInvocation.selector) hasPrefix:@"application"]) {
-//        [anInvocation invokeWithTarget:[SFMediator sharedInstance]];
-//    }
-//    else {
-//        [self sf_forwardInvocation:anInvocation];
-//    }
-//}
 
 @end

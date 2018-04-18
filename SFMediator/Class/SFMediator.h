@@ -14,6 +14,14 @@
     [SFMediator invokeTargetWithProtocol:x forwardTarget:nil];\
 }
 
+static inline BOOL SFMediatorShouldSwizzleSEL(SEL originalSEL) {
+    return [NSStringFromSelector(originalSEL) hasPrefix:@"application"];
+}
+
+static inline SEL SFMediatorSwizzleSEL(SEL originalSEL) {
+    return NSSelectorFromString([NSString stringWithFormat:@"sf_mediator_%@",NSStringFromSelector(originalSEL)]);
+};
+
 @interface SFMediator : NSObject
 
 /**
@@ -29,7 +37,15 @@
 + (instancetype)sharedInstance;
 
 /**
- 是否能打开URL
+ 是否能调用指定方法
+
+ @param selector -
+ @return -
+ */
++ (BOOL)canInvokeWithSelector:(SEL)selector;
+
+/**
+ 是否能打开指定URL
 
  @param url -
  @return -

@@ -18,24 +18,24 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
+//    [SFMediator sharedInstance].parser.invocationURLSchemes = @[@"demo"];
+//
+//    //本地调用,为了方便调用和参数检验项目依赖于各组件对应的协议,协议根据需求由开发者和使用者共同维护或者只由某一方维护
+//    UIViewController *rootViewController = nil;//[[SFMediator app] rootViewControllerWithText:@"root" count:10 number:3.1415926 model:[UISwitch new] enable:YES];
+//
+//    //远程调用,为了不定义各种参数key,暂时按严格的顺序传递和获取参数
+//    NSString *switchUrl = @"demo://app/rootSwitch";
+//    NSString *url = [NSString stringWithFormat:@"demo://app/rootViewControllerWithText:count:number:model:enable:?t=root&c=10&n=3.1415926&m=%@&e=1",switchUrl];
+//    rootViewController = [SFMediator openURL:url];
+//
+//    //调用已声明但开发方尚未实现的方法
+//    [[SFMediator app] printCurrentDate];
+//
+//
+//    NSLog(@"--root:%@",rootViewController);
     
-    [SFMediator sharedInstance].parser.invocationURLSchemes = @[@"demo"];
-    
-    //本地调用,为了方便调用和参数检验项目依赖于各组件对应的协议,协议根据需求由开发者和使用者共同维护或者只由某一方维护
-    UIViewController *rootViewController = nil;//[[SFMediator app] rootViewControllerWithText:@"root" count:10 number:3.1415926 model:[UISwitch new] enable:YES];
-    
-    //远程调用,为了不定义各种参数key,暂时按严格的顺序传递和获取参数
-    NSString *switchUrl = @"demo://app/rootSwitch";
-    NSString *url = [NSString stringWithFormat:@"demo://app/rootViewControllerWithText:count:number:model:enable:?t=root&c=10&n=3.1415926&m=%@&e=1",switchUrl];
-    rootViewController = [SFMediator openURL:url];
-    
-    //调用已声明但开发方尚未实现的方法
-    [[SFMediator app] printCurrentDate];
+    NSLog(@"[AppDelegate] didFinishLaunchingWithOptions");
 
-    
-    NSLog(@"--root:%@",rootViewController);
-    
     return YES;
 }
 
@@ -56,9 +56,14 @@
     // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
 }
 
+//- (void)application:(UIApplication *)application didChangeStatusBarFrame:(CGRect)oldStatusBarFrame  {
+//    NSLog(@"[AppDelegate] didChangeStatusBarFrame");
+//}
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+    
+    NSLog(@"[AppDelegate] applicationDidBecomeActive");
 }
 
 

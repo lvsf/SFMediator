@@ -8,13 +8,5 @@
 
 #import <UIKit/UIKit.h>
 
-static inline BOOL SFMediatorShouldSwizzleSEL(SEL originalSEL) {
-    return [NSStringFromSelector(originalSEL) hasPrefix:@"application"];
-}
-
-static inline SEL SFMediatorSwizzleSEL(SEL originalSEL) {
-    return NSSelectorFromString([NSString stringWithFormat:@"sf_mediator_%@",NSStringFromSelector(originalSEL)]);
-};
-
 @interface UIApplication (SFAddMediator)
 @end
