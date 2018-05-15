@@ -42,7 +42,7 @@ static inline SEL SFMediatorSwizzleSEL(SEL originalSEL) {
  @param selector -
  @return -
  */
-+ (BOOL)canInvokeWithSelector:(SEL)selector;
++ (BOOL)canInvokeSelector:(SEL)selector;
 
 /**
  是否能打开指定URL

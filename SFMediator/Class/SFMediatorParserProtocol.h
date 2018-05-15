@@ -18,6 +18,14 @@
 @property (nonatomic,copy) NSArray<NSString *> *invocationURLSchemes;
 
 /**
+ 解析调用协议名
+ 
+ @param URL -
+ @return -
+ */
+- (NSString *)invocationProtocolNameFromURL:(NSURL *)URL;
+
+/**
  解析调用方法名
 
  @param URL -
@@ -42,14 +50,6 @@
 - (id)invocationTargetFromProtocolName:(NSString *)protocolName;
 
 /**
- 解析调用函数名
-
- @param URL -
- @return -
- */
-- (NSString *)invocationProtocolNameFromURL:(NSURL *)URL;
-
-/**
  设置调用参数
  
  @param invocation 方法调用
@@ -64,4 +64,5 @@
  @return           返回值
  */
 - (id)invocationGetReturnValue:(NSInvocation *)invocation;
+
 @end

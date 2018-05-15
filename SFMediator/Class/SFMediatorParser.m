@@ -64,7 +64,7 @@ static inline SFValueType SFValueTypeTransform(const char *type){
 }
 
 - (NSString *)invocationProtocolNameFromURL:(NSURL *)URL {
-    return [[URL.host capitalizedString] stringByAppendingString:@"Protocol"];
+    return [[URL.host stringByReplacingCharactersInRange:NSMakeRange(0, 1) withString:[[URL.host substringToIndex:1] uppercaseString]] stringByAppendingString:@"Protocol"];
 }
 
 - (id)invocationTargetFromProtocolName:(NSString *)protocolName {

@@ -61,7 +61,7 @@ static inline BOOL SFMediatorSwizzleInstanceMethod(Class originalClass,Class tar
         for (unsigned int i = 0; i < count; i++) {
             struct objc_method_description method = methods[i];
             if (SFMediatorShouldSwizzleSEL(method.name)) {
-                if ([SFMediator canInvokeWithSelector:method.name]) {
+                if ([SFMediator canInvokeSelector:method.name]) {
                     SEL orginalSEL = method.name;
                     SEL targetSEL = SFMediatorSwizzleSEL(orginalSEL);
                     if (![delegate respondsToSelector:orginalSEL]) {

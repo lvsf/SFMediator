@@ -9,7 +9,7 @@
 #import "SFMediator.h"
 #import "SFMediatorParser.h"
 
-static inline NSURL *SFURLPraser(NSString *url) {
+static inline NSURL *SFURLParser(NSString *url) {
     NSString *encodeURL = [url stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     NSURL *URL = [NSURL URLWithString:encodeURL];
     return URL;
@@ -30,13 +30,12 @@ static inline void SFMediatorLog(NSString *message) {
 @property (nonatomic,copy) NSString *protocolName;
 @property (nonatomic,strong) id protocoltarget;
 @property (nonatomic,strong) id protocolForwardTarget;
-@property (nonatomic,strong) UIWindow *alertWindow;
 @end
 
 @implementation SFMediatorItem
 
-- (void)throwErrorForSelector:(SEL)aSelector {
-    SFMediatorLog([NSString stringWithFormat:@"无法响应的方法[%@ %@]",self.protocolName,NSStringFromSelector(aSelector)]);
+- (void)throwErrorForInvocation:(NSInvocation *)anInvocation {
+    SFMediatorLog([NSString stringWithFormat:@"无法响应的方法[%@ %@]",self.protocolName,NSStringFromSelector(anInvocation.selector)]);
 }
 
 - (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
@@ -48,7 +47,7 @@ static inline void SFMediatorLog(NSString *message) {
         signature = [self.protocolForwardTarget methodSignatureForSelector:aSelector];
     }
     else {
-        signature = [super methodSignatureForSelector:@selector(throwErrorForSelector:)];
+        signature = [super methodSignatureForSelector:@selector(throwErrorForInvocation:)];
     }
     return signature;
 }
@@ -59,7 +58,7 @@ static inline void SFMediatorLog(NSString *message) {
     } else if ([self.protocolForwardTarget respondsToSelector:anInvocation.selector]) {
         [anInvocation invokeWithTarget:self.protocolForwardTarget];
     } else {
-        [self throwErrorForSelector:anInvocation.selector];
+        [self throwErrorForInvocation:anInvocation];
     }
 }
 
@@ -82,7 +81,7 @@ static inline void SFMediatorLog(NSString *message) {
     return instance;
 }
 
-+ (BOOL)canInvokeWithSelector:(SEL)selector {
++ (BOOL)canInvokeSelector:(SEL)selector {
     __block BOOL invoke = NO;
     [[SFMediator sharedInstance].mediatorItems enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, SFMediatorItem * _Nonnull obj, BOOL * _Nonnull stop) {
         if ([obj.protocoltarget respondsToSelector:selector] ||
@@ -95,16 +94,16 @@ static inline void SFMediatorLog(NSString *message) {
 }
 
 + (BOOL)canOpenURL:(NSString *)url {
-    NSError *error = [self p_canOpenURL:SFURLPraser(url)];
+    NSError *error = [self p_canOpenURL:SFURLParser(url)];
     return !error;
 }
 
 + (id)openURL:(NSString *)url {
     id returnValue = nil;
-    NSURL *URL = SFURLPraser(url);
+    NSURL *URL = SFURLParser(url);
     NSError *error = [self p_canOpenURL:URL];
     if (!error) {
-        SFMediator *manager = [self sharedInstance];
+        SFMediator *manager = [SFMediator sharedInstance];
         NSString *protocolName = [manager.parser invocationProtocolNameFromURL:URL];
         SEL selector = [manager.parser invocationSelectorFromURL:URL];
         id parameter = [manager.parser invocationParameterFromURL:URL];
@@ -149,7 +148,7 @@ static inline void SFMediatorLog(NSString *message) {
 #pragma mark - private
 + (NSError *)p_canOpenURL:(NSURL *)URL {
     NSError *error = nil;
-    SFMediator *manager = [self sharedInstance];
+    SFMediator *manager = [SFMediator sharedInstance];
     if (!URL.scheme || ![manager.parser.invocationURLSchemes containsObject:URL.scheme]) {
         error = SFMediatorError(0, [NSString stringWithFormat:@"无法响应的scheme:%@",URL.scheme]);
     }
@@ -168,7 +167,7 @@ static inline void SFMediatorLog(NSString *message) {
 }
 
 + (id)p_invokeTargetWithProtocol:(NSString *)protocolName protocoltarget:(id)protocoltarget forwardTarget:(id)forwardTarget fromURL:(BOOL)fromURL {
-    SFMediator *manager = [self sharedInstance];
+    SFMediator *manager = [SFMediator sharedInstance];
     SFMediatorItem *mediatorItem = manager.mediatorItems[protocolName];
     if (mediatorItem == nil) {
         mediatorItem = [SFMediatorItem new];
@@ -180,8 +179,7 @@ static inline void SFMediatorLog(NSString *message) {
     return mediatorItem;
 }
 
-#pragma mark - UIApplicationDelegate
-#pragma mark - 转发处理
+#pragma mark - UIApplicationDelegate方法转发处理
 - (NSMethodSignature *)sf_mediator_methodSignatureForSelector:(SEL)aSelector {
     __block NSMethodSignature *methodSignature = [[SFMediator sharedInstance] sf_mediator_methodSignatureForSelector:aSelector];
     if (SFMediatorShouldSwizzleSEL(aSelector)) {
@@ -216,7 +214,7 @@ static inline void SFMediatorLog(NSString *message) {
     }
 }
 
-#pragma mark - 外部URL处理
+#pragma mark - APP启动
 - (BOOL)sf_mediator_application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     [self sf_mediator_application:application didFinishLaunchingWithOptions:launchOptions];
     [[SFMediator sharedInstance].mediatorItems enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, SFMediatorItem * _Nonnull obj, BOOL * _Nonnull stop) {
@@ -227,6 +225,7 @@ static inline void SFMediatorLog(NSString *message) {
     return YES;
 }
 
+#pragma mark - 外部URL处理
 //iOS9
 - (BOOL)sf_mediator_application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
     return NO;
