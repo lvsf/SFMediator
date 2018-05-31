@@ -7,35 +7,46 @@
 //
 
 #import "AppDelegate.h"
+#import "ViewController.h"
 #import "SFMediator+SFAdd.h"
-#import "CommonProtocol.h"
 
 @interface AppDelegate ()
-
 @end
 
 @implementation AppDelegate
 
++ (void)load {
+    [SFMediator sharedInstance].takeoverApplicationDelegate = YES;
+}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+   
+    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    [self.window setBackgroundColor:[UIColor whiteColor]];
+    [self.window makeKeyAndVisible];
+    [self.window setRootViewController:[ViewController new]];
+    
+    //配置SFMediator
     [SFMediator sharedInstance].parser.invocationURLSchemes = @[@"demo"];
 
     //本地调用,为了方便调用和参数检验项目依赖于各组件对应的协议,协议根据需求由开发者和使用者共同维护或者只由某一方维护
-    UIViewController *rootViewController = nil;//[[SFMediator app] rootViewControllerWithText:@"root" count:10 number:3.1415926 model:[UISwitch new] enable:YES];
+    [[SFMediator _AppProtocol] rootViewControllerWithText:@"root" count:10 number:3.1415926 model:[UISwitch new] enable:YES];
 
+    //本地调用已声明但开发方尚未实现的方法
+    [[SFMediator _AppProtocol] printCurrentDate];
+    
+    //本地调用,指定转发对象
+    [[SFMediator _UserProtocol] vc_home];
+    
     //远程调用,为了不定义各种参数key,暂时按严格的顺序传递和获取参数
     NSString *switchUrl = @"demo://app/rootSwitch";
     NSString *url = [NSString stringWithFormat:@"demo://app/rootViewControllerWithText:count:number:model:enable:?t=root&c=10&n=3.1415926&m=%@&e=1",switchUrl];
-    rootViewController = [SFMediator openURL:url];
-
-    //调用已声明但开发方尚未实现的方法
-    [[SFMediator app] printCurrentDate];
-
-
-    NSLog(@"--root:%@",rootViewController);
+    [SFMediator openURL:url];
+    
+    //远程调用,参数为空
+    [SFMediator openURL:@"demo://app/test:?a="];
     
     NSLog(@"[AppDelegate] didFinishLaunchingWithOptions");
-
     return YES;
 }
 

@@ -9,6 +9,13 @@
 #import "SFMediator.h"
 #import "SFMediatorParser.h"
 
+typedef NS_ENUM(NSInteger,SFMediatorErrorCode) {
+    SFMediatorErrorCodeNotRecognizeScheme = 1,
+    SFMediatorErrorCodeNotRecognizeProtocolName = 2,
+    SFMediatorErrorCodeNotRecognizeSelector = 3,
+    SFMediatorErrorCodeInvalidInvocationTarget = 4
+};
+
 static inline NSURL *SFURLParser(NSString *url) {
     NSString *encodeURL = [url stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     NSURL *URL = [NSURL URLWithString:encodeURL];
@@ -30,36 +37,45 @@ static inline void SFMediatorLog(NSString *message) {
 @property (nonatomic,copy) NSString *protocolName;
 @property (nonatomic,strong) id protocoltarget;
 @property (nonatomic,strong) id protocolForwardTarget;
+@property (nonatomic,copy) void (^throwError)(NSError *error);
 @end
 
 @implementation SFMediatorItem
 
 - (void)throwErrorForInvocation:(NSInvocation *)anInvocation {
-    SFMediatorLog([NSString stringWithFormat:@"无法响应的方法[%@ %@]",self.protocolName,NSStringFromSelector(anInvocation.selector)]);
+    if (self.throwError) {
+        self.throwError(SFMediatorError(SFMediatorErrorCodeNotRecognizeSelector, [NSString stringWithFormat:@"无法响应的方法[%@ %@]",self.protocolName,NSStringFromSelector(anInvocation.selector)]));
+    }
 }
 
-- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
-    NSMethodSignature *signature = nil;
+- (id)forwardingTargetForSelector:(SEL)aSelector {
     if ([self.protocoltarget respondsToSelector:aSelector]) {
-        signature = [self.protocoltarget methodSignatureForSelector:aSelector];
+        return self.protocoltarget;
     }
-    else if ([self.protocolForwardTarget respondsToSelector:aSelector]) {
-        signature = [self.protocolForwardTarget methodSignatureForSelector:aSelector];
+    if ([self.protocolForwardTarget respondsToSelector:aSelector]) {
+        return self.protocolForwardTarget;
     }
-    else {
-        signature = [super methodSignatureForSelector:@selector(throwErrorForInvocation:)];
-    }
-    return signature;
+    return self;
 }
 
 - (void)forwardInvocation:(NSInvocation *)anInvocation {
-    if ([self.protocoltarget respondsToSelector:anInvocation.selector]) {
-        [anInvocation invokeWithTarget:self.protocoltarget];
-    } else if ([self.protocolForwardTarget respondsToSelector:anInvocation.selector]) {
-        [anInvocation invokeWithTarget:self.protocolForwardTarget];
-    } else {
+    NSMethodSignature *signature = anInvocation.methodSignature;
+    id value = objc_getAssociatedObject(signature, @selector(throwErrorForInvocation:));
+    if (value && [value isEqualToString:NSStringFromSelector(@selector(throwErrorForInvocation:))]) {
         [self throwErrorForInvocation:anInvocation];
     }
+    else {
+        [super forwardInvocation:anInvocation];
+    }
+}
+
+- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
+    NSMethodSignature *signature = [super methodSignatureForSelector:aSelector];
+    if (signature == nil) {
+        signature = [self methodSignatureForSelector:@selector(throwErrorForInvocation:)];
+        objc_setAssociatedObject(signature, @selector(throwErrorForInvocation:), NSStringFromSelector(@selector(throwErrorForInvocation:)), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    return signature;
 }
 
 @end
@@ -67,6 +83,7 @@ static inline void SFMediatorLog(NSString *message) {
 #pragma mark - SFMediator
 @interface SFMediator()<UIApplicationDelegate>
 @property (nonatomic,strong) NSMutableDictionary<NSString *,SFMediatorItem *> *mediatorItems;
+@property (nonatomic,strong) NSMutableDictionary<NSString *,id> *mediatorTargets;
 @end
 
 @implementation SFMediator
@@ -99,84 +116,96 @@ static inline void SFMediatorLog(NSString *message) {
 }
 
 + (id)openURL:(NSString *)url {
-    id returnValue = nil;
     NSURL *URL = SFURLParser(url);
     NSError *error = [self p_canOpenURL:URL];
-    if (!error) {
-        SFMediator *manager = [SFMediator sharedInstance];
-        NSString *protocolName = [manager.parser invocationProtocolNameFromURL:URL];
-        SEL selector = [manager.parser invocationSelectorFromURL:URL];
-        id parameter = [manager.parser invocationParameterFromURL:URL];
-        id protocoltarget = [manager.parser invocationTargetFromProtocolName:protocolName];
-        id forwardTarget = nil;
-        error = [self p_canInvokeWithProtocol:protocolName
-                               protocoltarget:protocoltarget
-                                forwardTarget:forwardTarget];
-        if (!error) {
-            SFMediatorItem *mediatorItem = [self p_invokeTargetWithProtocol:protocolName
-                                                             protocoltarget:protocoltarget
-                                                              forwardTarget:forwardTarget
-                                                                    fromURL:YES];
-            NSMethodSignature *signature = [mediatorItem methodSignatureForSelector:selector];
-            NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
-            [invocation setTarget:mediatorItem];
-            [invocation setSelector:selector];
-            [manager.parser invocation:invocation setArgumentWithParameter:parameter];
-            returnValue = [manager.parser invocationGetReturnValue:invocation];
-            SFMediatorLog([NSString stringWithFormat:@"open success URL:%@ \nparameter:%@ \nreturnValue:%@",url,parameter,returnValue]);
-        }
-    }
     if (error) {
-        SFMediatorLog(error.localizedDescription);
+        [self p_failureWithError:error];
+        return nil;
     }
+    SFMediator *manager = [SFMediator sharedInstance];
+    NSString *protocolName = [manager.parser invocationProtocolNameFromURL:URL];
+    id target = manager.mediatorTargets[protocolName];
+    SEL selector = [manager.parser invocationSelectorFromURL:URL];
+    id parameter = [manager.parser invocationParameterFromURL:URL];
+    NSMethodSignature *signature = [target methodSignatureForSelector:selector];
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+    [invocation setTarget:target];
+    [invocation setSelector:selector];
+    [manager.parser invocation:invocation setArgumentWithParameter:parameter];
+    id returnValue = [manager.parser invocationGetReturnValue:invocation];
+    SFMediatorLog([NSString stringWithFormat:@"open success URL:%@ \nparameter:%@ \nreturnValue:%@",url,parameter,returnValue]);
     return returnValue;
 }
 
 + (id)invokeTargetWithProtocol:(Protocol *)protocol forwardTarget:(id)forwardTarget {
-    SFMediator *manager = [self sharedInstance];
-    NSString *protocolName = protocol?[NSString stringWithCString:protocol_getName(protocol) encoding:NSUTF8StringEncoding]:nil;
-    id protocoltarget = protocolName?[manager.parser invocationTargetFromProtocolName:protocolName]:nil;
-    NSError *error = [self p_canInvokeWithProtocol:protocolName
-                                    protocoltarget:protocoltarget
-                                     forwardTarget:forwardTarget];
-    return error?:[self p_invokeTargetWithProtocol:protocolName
-                                    protocoltarget:protocoltarget
-                                     forwardTarget:forwardTarget
-                                           fromURL:NO];
+    if (!protocol) {
+        [self p_failureWithError:SFMediatorError(SFMediatorErrorCodeNotRecognizeProtocolName, [NSString stringWithFormat:@"无法响应的protocol:%@",protocol])];
+        return nil;
+    }
+    NSString *protocolName = [NSString stringWithCString:protocol_getName(protocol) encoding:NSUTF8StringEncoding];
+    id target = [self p_invokeTargetWithProtocolName:protocolName];
+    if (target == nil && forwardTarget == nil) {
+        [self p_failureWithError:SFMediatorError(SFMediatorErrorCodeInvalidInvocationTarget, [NSString stringWithFormat:@"无法获取到正确的响应对象:%@",protocolName])];
+        return nil;
+    }
+    return [self p_invokeTargetItemWithProtocolName:protocolName target:target forwardTarget:forwardTarget];
 }
 
 #pragma mark - private
 + (NSError *)p_canOpenURL:(NSURL *)URL {
-    NSError *error = nil;
     SFMediator *manager = [SFMediator sharedInstance];
     if (!URL.scheme || ![manager.parser.invocationURLSchemes containsObject:URL.scheme]) {
-        error = SFMediatorError(0, [NSString stringWithFormat:@"无法响应的scheme:%@",URL.scheme]);
+        return SFMediatorError(SFMediatorErrorCodeNotRecognizeScheme, [NSString stringWithFormat:@"无法响应的scheme:%@",URL.scheme]);
     }
-    return error;
+    NSString *protocolName = [manager.parser invocationProtocolNameFromURL:URL];
+    if (!protocolName || !objc_getProtocol(protocolName.UTF8String)) {
+        return SFMediatorError(SFMediatorErrorCodeNotRecognizeProtocolName, [NSString stringWithFormat:@"无法响应的protocol:%@",URL.scheme]);
+    }
+    id target = [self p_invokeTargetWithProtocolName:protocolName];
+    if (target == nil) {
+        return SFMediatorError(SFMediatorErrorCodeInvalidInvocationTarget, [NSString stringWithFormat:@"无法获取到正确的响应对象:%@",protocolName]);
+    }
+    SEL selecotr = [manager.parser invocationSelectorFromURL:URL];
+    if (![target respondsToSelector:selecotr]) {
+        return SFMediatorError(SFMediatorErrorCodeNotRecognizeSelector, [NSString stringWithFormat:@"无法响应的方法[%@ %@]",target,NSStringFromSelector(selecotr)]);
+    }
+    return nil;
 }
 
-+ (NSError *)p_canInvokeWithProtocol:(NSString *)protocolName protocoltarget:(id)protocoltarget forwardTarget:(id)forwardTarget {
-    NSError *error = nil;
-    if (!objc_getProtocol(protocolName.UTF8String)) {
-        error = SFMediatorError(0, [NSString stringWithFormat:@"无法响应的protocol:%@",protocolName]);
++ (id)p_invokeTargetWithProtocolName:(NSString *)protocolName {
+    SFMediator *manager = [SFMediator sharedInstance];
+    id target = manager.mediatorTargets[protocolName];
+    if (target == nil) {
+        NSString *targetClassName = [manager.parser invocationTargetClassNameFromProtocolName:protocolName];
+        if ([NSClassFromString(targetClassName) respondsToSelector:@selector(new)]) {
+            target = [NSClassFromString(targetClassName) new];
+            manager.mediatorTargets[protocolName] = target;
+        }
     }
-    else if (!protocoltarget) {
-        error = SFMediatorError(0,[NSString stringWithFormat:@"无法获取到正确的响应对象:%@",protocolName]);
-    }
-    return error;
+    return target;
 }
 
-+ (id)p_invokeTargetWithProtocol:(NSString *)protocolName protocoltarget:(id)protocoltarget forwardTarget:(id)forwardTarget fromURL:(BOOL)fromURL {
++ (id)p_invokeTargetItemWithProtocolName:(NSString *)protocolName target:(id)target forwardTarget:(id)forwardTarget {
     SFMediator *manager = [SFMediator sharedInstance];
     SFMediatorItem *mediatorItem = manager.mediatorItems[protocolName];
     if (mediatorItem == nil) {
+        __weak typeof(self) wself = self;
         mediatorItem = [SFMediatorItem new];
         mediatorItem.protocolName = protocolName;
-        mediatorItem.protocoltarget = protocoltarget;
+        mediatorItem.protocoltarget = target;
         mediatorItem.protocolForwardTarget = forwardTarget;
+        mediatorItem.throwError = ^(NSError *error) {
+            [wself p_failureWithError:error];
+        };
         manager.mediatorItems[protocolName] = mediatorItem;
     }
     return mediatorItem;
+}
+
++ (void)p_failureWithError:(NSError *)error {
+    if ([[SFMediator sharedInstance].parser respondsToSelector:@selector(invocationFailureWithProtocolName:selectorName:error:)]) {
+        [[SFMediator sharedInstance].parser invocationFailureWithProtocolName:nil selectorName:nil error:error];
+    }
 }
 
 #pragma mark - UIApplicationDelegate方法转发处理
@@ -246,6 +275,13 @@ static inline void SFMediatorLog(NSString *message) {
     return _mediatorItems?:({
         _mediatorItems = [NSMutableDictionary new];
         _mediatorItems;
+    });
+}
+
+- (NSMutableDictionary<NSString *,id> *)mediatorTargets {
+    return _mediatorTargets?:({
+        _mediatorTargets = [NSMutableDictionary new];
+        _mediatorTargets;
     });
 }
 

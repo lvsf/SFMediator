@@ -30,6 +30,7 @@
 		17710E361F5CE84000C69DF7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		17710E391F5CE84000C69DF7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		17710E3B1F5CE84000C69DF7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1777F53C20BFF1DA00129FE2 /* UserProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UserProtocol.h; sourceTree = "<group>"; };
 		179FE24B1F67AD2800CB6DD7 /* SFMediator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SFMediator.h; sourceTree = "<group>"; };
 		179FE24C1F67AD2800CB6DD7 /* SFMediator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SFMediator.m; sourceTree = "<group>"; };
 		179FE24F1F67AD5A00CB6DD7 /* AppProtocol.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; path = AppProtocol.h; sourceTree = "<group>"; };
@@ -78,6 +79,8 @@
 		17710E291F5CE84000C69DF7 /* SFMediator */ = {
 			isa = PBXGroup;
 			children = (
+				179FE25E1F67AE7900CB6DD7 /* SFMediator+SFAdd.h */,
+				179FE25F1F67AE7900CB6DD7 /* SFMediator+SFAdd.m */,
 				179FE24E1F67AD4900CB6DD7 /* Protocol */,
 				179FE2541F67AE1F00CB6DD7 /* App */,
 				179FE24A1F67AD2800CB6DD7 /* Class */,
@@ -117,6 +120,8 @@
 			isa = PBXGroup;
 			children = (
 				179FE24F1F67AD5A00CB6DD7 /* AppProtocol.h */,
+				172456D82085D4160008F06D /* CommonProtocol.h */,
+				1777F53C20BFF1DA00129FE2 /* UserProtocol.h */,
 			);
 			path = Protocol;
 			sourceTree = "<group>";
@@ -124,15 +129,12 @@
 		179FE2541F67AE1F00CB6DD7 /* App */ = {
 			isa = PBXGroup;
 			children = (
-				179FE25E1F67AE7900CB6DD7 /* SFMediator+SFAdd.h */,
-				179FE25F1F67AE7900CB6DD7 /* SFMediator+SFAdd.m */,
-				179FE2551F67AE6300CB6DD7 /* AppDelegate.h */,
-				179FE2561F67AE6300CB6DD7 /* AppDelegate.m */,
 				179FE2571F67AE6300CB6DD7 /* AppProtocolTarget.h */,
 				179FE2581F67AE6300CB6DD7 /* AppProtocolTarget.m */,
+				179FE2551F67AE6300CB6DD7 /* AppDelegate.h */,
+				179FE2561F67AE6300CB6DD7 /* AppDelegate.m */,
 				179FE2591F67AE6300CB6DD7 /* ViewController.h */,
 				179FE25A1F67AE6300CB6DD7 /* ViewController.m */,
-				172456D82085D4160008F06D /* CommonProtocol.h */,
 			);
 			path = App;
 			sourceTree = "<group>";

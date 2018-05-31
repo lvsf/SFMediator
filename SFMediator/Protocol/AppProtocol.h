@@ -6,14 +6,13 @@
 //  Copyright © 2017年 YunSL. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
 #import "SFMediatorTargetProtocol.h"
 
 @protocol AppProtocol <SFMediatorTargetProtocol>
 @optional
-- (UISwitch *)rootSwitch;
 - (void)printCurrentDate;
+- (UISwitch *)rootSwitch;
+- (id)test:(void(^)(void))a;
 - (UIViewController *)rootViewControllerWithText:(NSString*)text
                                           count:(NSInteger)count
                                          number:(CGFloat)number

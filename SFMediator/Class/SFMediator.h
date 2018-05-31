@@ -9,9 +9,15 @@
 #import "SFMediatorParserProtocol.h"
 #import "SFMediatorTargetProtocol.h"
 
-#define SFMediatorRegisterTarget(x) \
+#define SFMediatorRegisterProtocol_H(p) + (id<p>)_##p;
+#define SFMediatorRegisterProtocol_M(p) SFMediatorRegisterProtocol_F_M(nil,p)
+#define SFMediatorRegisterProtocol_F_M(f,p) + (id<p>)_##p {\
+return [self invokeTargetWithProtocol:@protocol(p)\
+forwardTarget:f];\
+};
+#define SFMediatorRegisterAppdelegateProtocol(p) \
 + (void)load {\
-    [SFMediator invokeTargetWithProtocol:x forwardTarget:nil];\
+    [SFMediator invokeTargetWithProtocol:@protocol(p) forwardTarget:nil];\
 }
 
 static inline BOOL SFMediatorShouldSwizzleSEL(SEL originalSEL) {
@@ -30,19 +36,16 @@ static inline SEL SFMediatorSwizzleSEL(SEL originalSEL) {
 @property (nonatomic,strong) id <SFMediatorParserProtocol> parser;
 
 /**
+ 是否接管ApplicationDelegate代理方法
+ */
+@property (nonatomic,assign) BOOL takeoverApplicationDelegate;
+
+/**
  单例对象
 
  @return -
  */
 + (instancetype)sharedInstance;
-
-/**
- 是否能调用指定方法
-
- @param selector -
- @return -
- */
-+ (BOOL)canInvokeSelector:(SEL)selector;
 
 /**
  是否能打开指定URL
@@ -59,6 +62,14 @@ static inline SEL SFMediatorSwizzleSEL(SEL originalSEL) {
  @return -
  */
 + (id)openURL:(NSString *)url;
+
+/**
+ 是否能调用到指定方法
+ 
+ @param selector -
+ @return -
+ */
++ (BOOL)canInvokeSelector:(SEL)selector;
 
 /**
  获取调用对象//本地调用

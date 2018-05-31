@@ -67,15 +67,15 @@ static inline SFValueType SFValueTypeTransform(const char *type){
     return [[URL.host stringByReplacingCharactersInRange:NSMakeRange(0, 1) withString:[[URL.host substringToIndex:1] uppercaseString]] stringByAppendingString:@"Protocol"];
 }
 
-- (id)invocationTargetFromProtocolName:(NSString *)protocolName {
-    id target = nil;
+- (NSString *)invocationTargetClassNameFromProtocolName:(NSString *)protocolName {
+    NSString *name = nil;
     if (protocolName) {
-        NSString *targetClassName = [protocolName stringByAppendingString:@"Target"];
-        if ([NSClassFromString(targetClassName) respondsToSelector:@selector(new)]) {
-            target = [NSClassFromString(targetClassName) new];
+        NSString *name_ = [protocolName stringByAppendingString:@"Target"];
+        if ([NSClassFromString(name_) respondsToSelector:@selector(new)]) {
+            name = name_;
         }
     }
-    return target;
+    return name;
 }
 
 - (SEL)invocationSelectorFromURL:(NSURL *)URL {
@@ -99,7 +99,7 @@ static inline SFValueType SFValueTypeTransform(const char *type){
                         id value = elements.lastObject;
                         if ([value isKindOfClass:[NSString class]]) {
                             NSString *string = (NSString *)value;
-                            if (string.length == 0) {
+                            if (string.length == 0 || [string isEqualToString:@"null"]) {
                                 value = [NSNull null];
                             }
                             else {
@@ -131,32 +131,45 @@ static inline SFValueType SFValueTypeTransform(const char *type){
     //此处使用NSArray保证参数的顺序
     if ([parameter isKindOfClass:[NSArray class]]) {
         [(NSArray *)parameter enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            //此处应该封装一个协议用来处理URL获取的参数类型到OC类型的转换
             switch (SFValueTypeTransform([invocation.methodSignature getArgumentTypeAtIndex:idx + 2])) {
                 case SFValueTypeBool:{
-                    BOOL argument = [obj boolValue];
+                    BOOL argument = NO;
+                    if (![obj isEqual:[NSNull null]]) {
+                        argument = [obj boolValue];;
+                    }
                     [invocation setArgument:&argument atIndex:idx + 2];
                 }
                     break;
                 case SFValueTypeInt:
                 case SFValueTypeLong:{
-                    NSInteger argument = [obj integerValue];
+                    NSInteger argument = 0;
+                    if (![obj isEqual:[NSNull null]]) {
+                        argument = [obj integerValue];;
+                    }
                     [invocation setArgument:&argument atIndex:idx + 2];
                 }
                     break;
                 case SFValueTypeFloat:{
-                    float argument = [obj floatValue];
+                    float argument = 0.0;
+                    if (![obj isEqual:[NSNull null]]) {
+                        argument = [obj floatValue];
+                    }
                     [invocation setArgument:&argument atIndex:idx + 2];
                 }
                     break;
                 case SFValueTypeDouble:{
-                    double argument = [obj doubleValue];
+                    double argument = 0.0;
+                    if (![obj isEqual:[NSNull null]]) {
+                        argument = [obj doubleValue];
+                    }
                     [invocation setArgument:&argument atIndex:idx + 2];
                 }
                     break;
                 default:{
-                    id argument = obj;
-                    [invocation setArgument:&argument atIndex:idx + 2];
+                    if (![obj isEqual:[NSNull null]]) {
+                        id argument = obj;
+                        [invocation setArgument:&argument atIndex:idx + 2];
+                    }
                 }
                     break;
             }
@@ -227,6 +240,20 @@ static inline SFValueType SFValueTypeTransform(const char *type){
             break;
     }
     return returnValue;
+}
+
+- (void)invocationFailureWithProtocolName:(NSString *)protocolNanme selectorName:(NSString *)selectorName error:(NSError *)error {
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"[SFMediator Error]" message:error.localizedDescription preferredStyle:UIAlertControllerStyleAlert];
+    [alert addAction:[UIAlertAction actionWithTitle:@"确定"
+                                              style:UIAlertActionStyleCancel
+                                            handler:nil]];
+    if ([UIApplication sharedApplication].keyWindow.rootViewController) {
+        UIViewController *topRootViewController = [UIApplication sharedApplication].keyWindow.rootViewController;
+        while (topRootViewController.presentedViewController){
+            topRootViewController = topRootViewController.presentedViewController;
+        }
+        [topRootViewController presentViewController:alert animated:YES completion:nil];
+    }
 }
 
 @end

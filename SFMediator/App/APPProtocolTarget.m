@@ -12,10 +12,18 @@
 
 @implementation AppProtocolTarget
 
-SFMediatorRegisterTarget(@protocol(AppProtocol))
+SFMediatorRegisterAppdelegateProtocol(AppProtocol)
 
 - (UISwitch *)rootSwitch {
     return [UISwitch new];
+}
+
+- (id)test:(void (^)(void))a {
+    if (a) {
+        a();
+        NSLog(@"==========%@",a);
+    }
+    return nil;
 }
 
 - (UIViewController *)rootViewControllerWithText:(NSString *)text count:(NSInteger)count number:(CGFloat)number model:(id)model enable:(BOOL)enable {

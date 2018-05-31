@@ -47,7 +47,7 @@
  @param protocolName -
  @return -
  */
-- (id)invocationTargetFromProtocolName:(NSString *)protocolName;
+- (NSString *)invocationTargetClassNameFromProtocolName:(NSString *)protocolName;
 
 /**
  设置调用参数
@@ -64,5 +64,7 @@
  @return           返回值
  */
 - (id)invocationGetReturnValue:(NSInvocation *)invocation;
+
+- (void)invocationFailureWithProtocolName:(NSString *)protocolNanme selectorName:(NSString *)selectorName error:(NSError *)error;
 
 @end
