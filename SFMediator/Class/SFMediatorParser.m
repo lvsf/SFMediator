@@ -52,11 +52,11 @@ static inline SFValueType SFValueTypeTransform(const char *type){
 };
 
 @implementation SFMediatorParser
-@synthesize invocationURLSchemes = _invocationURLSchemes;
+@synthesize invocationValidURLSchemes = _invocationValidURLSchemes;
 
 - (instancetype)init {
     if (self = [super init]) {
-        self.invocationURLSchemes = @[@"app"];
+        self.invocationValidURLSchemes = @[@"app"];
         self.enableRecursiveParse = YES;
         self.parserType = Array;
     }
@@ -177,7 +177,7 @@ static inline SFValueType SFValueTypeTransform(const char *type){
     }
 }
 
-- (id)invocationGetReturnValue:(NSInvocation *)invocation {
+- (id)invoke:(NSInvocation *)invocation {
     //暂时处理返回为void,BOOL,NSInteger,CGFloat,CGSize,CGRect,CGPoint的调用,其他视为返回NSObject对象处理
     id returnValue = nil;
     const char *returnType = [invocation.methodSignature methodReturnType];
@@ -242,8 +242,8 @@ static inline SFValueType SFValueTypeTransform(const char *type){
     return returnValue;
 }
 
-- (void)invocationFailureWithProtocolName:(NSString *)protocolNanme selectorName:(NSString *)selectorName error:(NSError *)error {
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"[SFMediator Error]" message:error.localizedDescription preferredStyle:UIAlertControllerStyleAlert];
+- (void)invokeFailureWithError:(SFMediatorError *)error {
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"[SFMediator Error]" message:error.message preferredStyle:UIAlertControllerStyleAlert];
     [alert addAction:[UIAlertAction actionWithTitle:@"确定"
                                               style:UIAlertActionStyleCancel
                                             handler:nil]];

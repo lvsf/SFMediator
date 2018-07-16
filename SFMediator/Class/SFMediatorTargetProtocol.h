@@ -10,4 +10,8 @@
 #import <UIKit/UIKit.h>
 
 @protocol SFMediatorTargetProtocol <UIApplicationDelegate>
+/**
+ 是否接管ApplicationDelegate代理方法
+ */
+@property (nonatomic,assign) BOOL takeoverApplicationDelegate;
 @end

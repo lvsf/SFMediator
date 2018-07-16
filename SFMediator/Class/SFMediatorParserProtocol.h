@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
+#import "SFMediatorError.h"
 
 @protocol SFMediatorParserProtocol <NSObject>
 /**
@@ -15,7 +16,7 @@
  
  @return URL协议名
  */
-@property (nonatomic,copy) NSArray<NSString *> *invocationURLSchemes;
+@property (nonatomic,copy) NSArray<NSString *> *invocationValidURLSchemes;
 
 /**
  解析调用协议名
@@ -63,8 +64,13 @@
  @param invocation 方法调用
  @return           返回值
  */
-- (id)invocationGetReturnValue:(NSInvocation *)invocation;
+- (id)invoke:(NSInvocation *)invocation;
 
-- (void)invocationFailureWithProtocolName:(NSString *)protocolNanme selectorName:(NSString *)selectorName error:(NSError *)error;
+/**
+ 调用失败
+
+ @param error -
+ */
+- (void)invokeFailureWithError:(SFMediatorError *)error;
 
 @end

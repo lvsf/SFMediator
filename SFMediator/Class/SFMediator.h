@@ -8,17 +8,7 @@
 
 #import "SFMediatorParserProtocol.h"
 #import "SFMediatorTargetProtocol.h"
-
-#define SFMediatorRegisterProtocol_H(p) + (id<p>)_##p;
-#define SFMediatorRegisterProtocol_M(p) SFMediatorRegisterProtocol_F_M(nil,p)
-#define SFMediatorRegisterProtocol_F_M(f,p) + (id<p>)_##p {\
-return [self invokeTargetWithProtocol:@protocol(p)\
-forwardTarget:f];\
-};
-#define SFMediatorRegisterAppdelegateProtocol(p) \
-+ (void)load {\
-    [SFMediator invokeTargetWithProtocol:@protocol(p) forwardTarget:nil];\
-}
+#import "SFMediatorError.h"
 
 static inline BOOL SFMediatorShouldSwizzleSEL(SEL originalSEL) {
     return [NSStringFromSelector(originalSEL) hasPrefix:@"application"];
@@ -28,12 +18,8 @@ static inline SEL SFMediatorSwizzleSEL(SEL originalSEL) {
     return NSSelectorFromString([NSString stringWithFormat:@"sf_mediator_%@",NSStringFromSelector(originalSEL)]);
 };
 
-@interface SFMediator : NSObject
 
-/**
- 解析对象
- */
-@property (nonatomic,strong) id <SFMediatorParserProtocol> parser;
+@interface SFMediator : NSObject
 
 /**
  是否接管ApplicationDelegate代理方法
@@ -41,11 +27,23 @@ static inline SEL SFMediatorSwizzleSEL(SEL originalSEL) {
 @property (nonatomic,assign) BOOL takeoverApplicationDelegate;
 
 /**
+ 解析对象
+ */
+@property (nonatomic,strong) id <SFMediatorParserProtocol> parser;
+
+/**
  单例对象
 
  @return -
  */
 + (instancetype)sharedInstance;
+
+/**
+ 是否需要处理UIApplicationDelegate代理方法
+ 
+ @return -
+ */
++ (BOOL)takeoverApplicationDelegateByTargets;
 
 /**
  是否能打开指定URL
@@ -56,7 +54,7 @@ static inline SEL SFMediatorSwizzleSEL(SEL originalSEL) {
 + (BOOL)canOpenURL:(NSString *)url;
 
 /**
- 打开URL//远程调用
+ 打开URL
 
  @param url -
  @return -
@@ -69,15 +67,14 @@ static inline SEL SFMediatorSwizzleSEL(SEL originalSEL) {
  @param selector -
  @return -
  */
-+ (BOOL)canInvokeSelector:(SEL)selector;
++ (BOOL)respondsToSelectorByTargets:(SEL)selector;
 
 /**
- 获取调用对象//本地调用
+ 获取调用对象
 
  @param protocol       协议对象
- @param forwardTarget  转发对象
  @return -
  */
-+ (id)invokeTargetWithProtocol:(Protocol *)protocol
-                 forwardTarget:(id)forwardTarget;
++ (id)invokeTargetWithProtocol:(Protocol *)protocol;
+
 @end
