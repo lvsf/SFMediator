@@ -7,6 +7,7 @@
 //
 
 #import "SFMediatorTargetProtocol.h"
+#import <UIKit/UIKit.h>
 
 @protocol AppProtocol <SFMediatorTargetProtocol>
 @optional

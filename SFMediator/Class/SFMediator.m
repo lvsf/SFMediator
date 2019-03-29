@@ -50,24 +50,6 @@ static inline void SFMediatorLog(NSString *message) {
     return instance;
 }
 
-+ (BOOL)takeoverApplicationDelegateByTargets {
-    BOOL takeover = [SFMediator sharedInstance].takeoverApplicationDelegate;
-    if (takeover) {
-        BOOL __block takeoverByTargets = NO;
-        [[SFMediator sharedInstance].targets enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-            if ([obj conformsToProtocol:@protocol(SFMediatorTargetProtocol)]) {
-                id<SFMediatorTargetProtocol> target = obj;
-                if (target.takeoverApplicationDelegate) {
-                    takeoverByTargets = YES;
-                    *stop = YES;
-                }
-            }
-        }];
-        takeover = takeoverByTargets;
-    }
-    return takeover;
-}
-
 + (BOOL)respondsToSelectorByTargets:(SEL)selector {
     __block BOOL responds = NO;
     [[SFMediator sharedInstance].targets enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
@@ -213,12 +195,13 @@ static inline void SFMediatorLog(NSString *message) {
 
 #pragma mark - APP启动
 - (BOOL)sf_mediator_application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    [self sf_mediator_application:application didFinishLaunchingWithOptions:launchOptions];
     [[SFMediator sharedInstance].targets enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
         if ([obj respondsToSelector:@selector(application:didFinishLaunchingWithOptions:)]) {
             [obj application:application didFinishLaunchingWithOptions:launchOptions];
         }
     }];
-    return [self sf_mediator_application:application didFinishLaunchingWithOptions:launchOptions];;
+    return YES;
 }
 
 #pragma mark - 外部URL处理
@@ -260,6 +243,15 @@ static inline void SFMediatorLog(NSString *message) {
     return result;
 }
 
+- (void)sf_mediator_application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    [[SFMediator sharedInstance].targets enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        if ([obj respondsToSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)]) {
+            [obj application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+        }
+    }];
+    [self sf_mediator_application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+}
+
 #pragma mark - set/get
 - (id<SFMediatorParserProtocol>)parser {
     return _parser?:({
@@ -280,6 +272,10 @@ static inline void SFMediatorLog(NSString *message) {
         _targets = [NSMutableDictionary new];
         _targets;
     });
+}
+
+- (NSInteger)targetCount {
+    return _targets.count;
 }
 
 @end

@@ -17,4 +17,5 @@ typedef NS_ENUM(NSInteger,SFMediatorParserType) {
 @interface SFMediatorParser : NSObject<SFMediatorParserProtocol>
 @property (nonatomic,assign) BOOL enableRecursiveParse;
 @property (nonatomic,assign) SFMediatorParserType parserType;
+@property (nonatomic,copy) NSString *(^targetClassNameHandler)(NSString *protocolName, NSString *originalClassName);
 @end

@@ -7,7 +7,6 @@
 //
 
 #import "SFMediatorParserProtocol.h"
-#import "SFMediatorTargetProtocol.h"
 #import "SFMediatorError.h"
 
 static inline BOOL SFMediatorShouldSwizzleSEL(SEL originalSEL) {
@@ -18,13 +17,14 @@ static inline SEL SFMediatorSwizzleSEL(SEL originalSEL) {
     return NSSelectorFromString([NSString stringWithFormat:@"sf_mediator_%@",NSStringFromSelector(originalSEL)]);
 };
 
-
 @interface SFMediator : NSObject
 
+@property (nonatomic,assign,readonly) NSInteger targetCount;
+
 /**
- 是否接管ApplicationDelegate代理方法
+ 注册需要接受UIApplicationDelegate的协议
  */
-@property (nonatomic,assign) BOOL takeoverApplicationDelegate;
+@property (nonatomic,copy) NSArray<Protocol *> *registerApplicationDelegateProtocols;
 
 /**
  解析对象
@@ -37,13 +37,6 @@ static inline SEL SFMediatorSwizzleSEL(SEL originalSEL) {
  @return -
  */
 + (instancetype)sharedInstance;
-
-/**
- 是否需要处理UIApplicationDelegate代理方法
- 
- @return -
- */
-+ (BOOL)takeoverApplicationDelegateByTargets;
 
 /**
  是否能打开指定URL

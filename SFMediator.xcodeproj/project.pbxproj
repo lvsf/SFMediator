@@ -7,23 +7,32 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		17467B3E224DAAC700CE164A /* SFMediatorError.m in Sources */ = {isa = PBXBuildFile; fileRef = 17467B34224DAAC600CE164A /* SFMediatorError.m */; };
+		17467B3F224DAAC700CE164A /* SFMediator.m in Sources */ = {isa = PBXBuildFile; fileRef = 17467B36224DAAC600CE164A /* SFMediator.m */; };
+		17467B40224DAAC700CE164A /* SFMediatorParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 17467B3B224DAAC700CE164A /* SFMediatorParser.m */; };
+		17467B41224DAAC700CE164A /* UIApplication+SFAddMediator.m in Sources */ = {isa = PBXBuildFile; fileRef = 17467B3C224DAAC700CE164A /* UIApplication+SFAddMediator.m */; };
 		17710E2C1F5CE84000C69DF7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 17710E2B1F5CE84000C69DF7 /* main.m */; };
 		17710E351F5CE84000C69DF7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 17710E331F5CE84000C69DF7 /* Main.storyboard */; };
 		17710E371F5CE84000C69DF7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 17710E361F5CE84000C69DF7 /* Assets.xcassets */; };
 		17710E3A1F5CE84000C69DF7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 17710E381F5CE84000C69DF7 /* LaunchScreen.storyboard */; };
-		179FE24D1F67AD2800CB6DD7 /* SFMediator.m in Sources */ = {isa = PBXBuildFile; fileRef = 179FE24C1F67AD2800CB6DD7 /* SFMediator.m */; };
 		179FE2501F67AD6500CB6DD7 /* AppProtocol.h in Sources */ = {isa = PBXBuildFile; fileRef = 179FE24F1F67AD5A00CB6DD7 /* AppProtocol.h */; };
 		179FE25B1F67AE6300CB6DD7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 179FE2561F67AE6300CB6DD7 /* AppDelegate.m */; };
 		179FE25C1F67AE6300CB6DD7 /* AppProtocolTarget.m in Sources */ = {isa = PBXBuildFile; fileRef = 179FE2581F67AE6300CB6DD7 /* AppProtocolTarget.m */; };
 		179FE25D1F67AE6300CB6DD7 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 179FE25A1F67AE6300CB6DD7 /* ViewController.m */; };
-		179FE2601F67AE7900CB6DD7 /* SFMediator+SFAdd.m in Sources */ = {isa = PBXBuildFile; fileRef = 179FE25F1F67AE7900CB6DD7 /* SFMediator+SFAdd.m */; };
-		17F80577207F43D700E30404 /* UIApplication+SFAddMediator.m in Sources */ = {isa = PBXBuildFile; fileRef = 17F80576207F43D700E30404 /* UIApplication+SFAddMediator.m */; };
-		17F8057B207F4C8900E30404 /* SFMediatorParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 17F8057A207F4C8900E30404 /* SFMediatorParser.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		172456D020858C710008F06D /* SFMediatorTargetProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SFMediatorTargetProtocol.h; sourceTree = "<group>"; };
 		172456D82085D4160008F06D /* CommonProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommonProtocol.h; sourceTree = "<group>"; };
+		17467B34224DAAC600CE164A /* SFMediatorError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SFMediatorError.m; path = ../../../QuanYou_developer/Lib/SF/SFMediator/SFMediatorError.m; sourceTree = "<group>"; };
+		17467B35224DAAC600CE164A /* SFMediatorError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SFMediatorError.h; path = ../../../QuanYou_developer/Lib/SF/SFMediator/SFMediatorError.h; sourceTree = "<group>"; };
+		17467B36224DAAC600CE164A /* SFMediator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SFMediator.m; sourceTree = "<group>"; };
+		17467B37224DAAC600CE164A /* SFMediator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SFMediator.h; sourceTree = "<group>"; };
+		17467B38224DAAC600CE164A /* SFMediatorParserProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SFMediatorParserProtocol.h; sourceTree = "<group>"; };
+		17467B39224DAAC700CE164A /* SFMediatorParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SFMediatorParser.h; sourceTree = "<group>"; };
+		17467B3A224DAAC700CE164A /* SFMediatorTargetProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SFMediatorTargetProtocol.h; sourceTree = "<group>"; };
+		17467B3B224DAAC700CE164A /* SFMediatorParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SFMediatorParser.m; sourceTree = "<group>"; };
+		17467B3C224DAAC700CE164A /* UIApplication+SFAddMediator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIApplication+SFAddMediator.m"; sourceTree = "<group>"; };
+		17467B3D224DAAC700CE164A /* UIApplication+SFAddMediator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIApplication+SFAddMediator.h"; sourceTree = "<group>"; };
 		17710E271F5CE84000C69DF7 /* SFMediator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SFMediator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		17710E2B1F5CE84000C69DF7 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		17710E341F5CE84000C69DF7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -31,8 +40,6 @@
 		17710E391F5CE84000C69DF7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		17710E3B1F5CE84000C69DF7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1777F53C20BFF1DA00129FE2 /* UserProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UserProtocol.h; sourceTree = "<group>"; };
-		179FE24B1F67AD2800CB6DD7 /* SFMediator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SFMediator.h; sourceTree = "<group>"; };
-		179FE24C1F67AD2800CB6DD7 /* SFMediator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SFMediator.m; sourceTree = "<group>"; };
 		179FE24F1F67AD5A00CB6DD7 /* AppProtocol.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; path = AppProtocol.h; sourceTree = "<group>"; };
 		179FE2551F67AE6300CB6DD7 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		179FE2561F67AE6300CB6DD7 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -40,13 +47,6 @@
 		179FE2581F67AE6300CB6DD7 /* AppProtocolTarget.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppProtocolTarget.m; sourceTree = "<group>"; };
 		179FE2591F67AE6300CB6DD7 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		179FE25A1F67AE6300CB6DD7 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		179FE25E1F67AE7900CB6DD7 /* SFMediator+SFAdd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SFMediator+SFAdd.h"; sourceTree = "<group>"; };
-		179FE25F1F67AE7900CB6DD7 /* SFMediator+SFAdd.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SFMediator+SFAdd.m"; sourceTree = "<group>"; };
-		17F80575207F43D700E30404 /* UIApplication+SFAddMediator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIApplication+SFAddMediator.h"; sourceTree = "<group>"; };
-		17F80576207F43D700E30404 /* UIApplication+SFAddMediator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIApplication+SFAddMediator.m"; sourceTree = "<group>"; };
-		17F80579207F4C8900E30404 /* SFMediatorParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SFMediatorParser.h; sourceTree = "<group>"; };
-		17F8057A207F4C8900E30404 /* SFMediatorParser.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SFMediatorParser.m; sourceTree = "<group>"; };
-		17F8057C207F4CBC00E30404 /* SFMediatorParserProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SFMediatorParserProtocol.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,8 +79,6 @@
 		17710E291F5CE84000C69DF7 /* SFMediator */ = {
 			isa = PBXGroup;
 			children = (
-				179FE25E1F67AE7900CB6DD7 /* SFMediator+SFAdd.h */,
-				179FE25F1F67AE7900CB6DD7 /* SFMediator+SFAdd.m */,
 				179FE24E1F67AD4900CB6DD7 /* Protocol */,
 				179FE2541F67AE1F00CB6DD7 /* App */,
 				179FE24A1F67AD2800CB6DD7 /* Class */,
@@ -104,14 +102,16 @@
 		179FE24A1F67AD2800CB6DD7 /* Class */ = {
 			isa = PBXGroup;
 			children = (
-				179FE24B1F67AD2800CB6DD7 /* SFMediator.h */,
-				179FE24C1F67AD2800CB6DD7 /* SFMediator.m */,
-				17F80579207F4C8900E30404 /* SFMediatorParser.h */,
-				17F8057A207F4C8900E30404 /* SFMediatorParser.m */,
-				17F8057C207F4CBC00E30404 /* SFMediatorParserProtocol.h */,
-				172456D020858C710008F06D /* SFMediatorTargetProtocol.h */,
-				17F80575207F43D700E30404 /* UIApplication+SFAddMediator.h */,
-				17F80576207F43D700E30404 /* UIApplication+SFAddMediator.m */,
+				17467B37224DAAC600CE164A /* SFMediator.h */,
+				17467B36224DAAC600CE164A /* SFMediator.m */,
+				17467B35224DAAC600CE164A /* SFMediatorError.h */,
+				17467B34224DAAC600CE164A /* SFMediatorError.m */,
+				17467B39224DAAC700CE164A /* SFMediatorParser.h */,
+				17467B3B224DAAC700CE164A /* SFMediatorParser.m */,
+				17467B38224DAAC600CE164A /* SFMediatorParserProtocol.h */,
+				17467B3A224DAAC700CE164A /* SFMediatorTargetProtocol.h */,
+				17467B3D224DAAC700CE164A /* UIApplication+SFAddMediator.h */,
+				17467B3C224DAAC700CE164A /* UIApplication+SFAddMediator.m */,
 			);
 			path = Class;
 			sourceTree = "<group>";
@@ -211,12 +211,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				179FE25D1F67AE6300CB6DD7 /* ViewController.m in Sources */,
+				17467B3E224DAAC700CE164A /* SFMediatorError.m in Sources */,
 				179FE25B1F67AE6300CB6DD7 /* AppDelegate.m in Sources */,
-				179FE2601F67AE7900CB6DD7 /* SFMediator+SFAdd.m in Sources */,
-				17F8057B207F4C8900E30404 /* SFMediatorParser.m in Sources */,
-				179FE24D1F67AD2800CB6DD7 /* SFMediator.m in Sources */,
+				17467B40224DAAC700CE164A /* SFMediatorParser.m in Sources */,
+				17467B41224DAAC700CE164A /* UIApplication+SFAddMediator.m in Sources */,
 				179FE2501F67AD6500CB6DD7 /* AppProtocol.h in Sources */,
-				17F80577207F43D700E30404 /* UIApplication+SFAddMediator.m in Sources */,
+				17467B3F224DAAC700CE164A /* SFMediator.m in Sources */,
 				17710E2C1F5CE84000C69DF7 /* main.m in Sources */,
 				179FE25C1F67AE6300CB6DD7 /* AppProtocolTarget.m in Sources */,
 			);

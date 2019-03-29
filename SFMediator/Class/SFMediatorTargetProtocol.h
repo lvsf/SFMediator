@@ -1,17 +1,13 @@
 //
 //  SFMediatorTargetProtocol.h
-//  SFMediator
+//  QuanYou
 //
-//  Created by YunSL on 2018/4/17.
+//  Created by YunSL on 2018/8/11.
 //  Copyright © 2018年 YunSL. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
 
-@protocol SFMediatorTargetProtocol <UIApplicationDelegate>
-/**
- 是否接管ApplicationDelegate代理方法
- */
-@property (nonatomic,assign) BOOL takeoverApplicationDelegate;
+@protocol SFMediatorTargetProtocol <NSObject>
+
 @end

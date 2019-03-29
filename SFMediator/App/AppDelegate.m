@@ -8,16 +8,11 @@
 
 #import "AppDelegate.h"
 #import "ViewController.h"
-#import "SFMediator+SFAdd.h"
 
 @interface AppDelegate ()
 @end
 
 @implementation AppDelegate
-
-+ (void)load {
-    [SFMediator sharedInstance].takeoverApplicationDelegate = YES;
-}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
    
@@ -26,6 +21,7 @@
     [self.window makeKeyAndVisible];
     [self.window setRootViewController:[ViewController new]];
     
+    /*
     //配置SFMediator
     [SFMediator sharedInstance].parser.invocationURLSchemes = @[@"demo"];
 
@@ -47,6 +43,8 @@
     [SFMediator openURL:@"demo://app/test:?a="];
     
     NSLog(@"[AppDelegate] didFinishLaunchingWithOptions");
+    */
+     
     return YES;
 }
 

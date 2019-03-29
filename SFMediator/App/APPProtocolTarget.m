@@ -12,8 +12,6 @@
 
 @implementation AppProtocolTarget
 
-SFMediatorRegisterAppdelegateProtocol(AppProtocol)
-
 - (UISwitch *)rootSwitch {
     return [UISwitch new];
 }

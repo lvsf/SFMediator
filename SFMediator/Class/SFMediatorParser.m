@@ -57,7 +57,7 @@ static inline SFValueType SFValueTypeTransform(const char *type){
 - (instancetype)init {
     if (self = [super init]) {
         self.invocationValidURLSchemes = @[@"app"];
-        self.enableRecursiveParse = YES;
+        self.enableRecursiveParse = NO;
         self.parserType = Array;
     }
     return self;
@@ -74,6 +74,9 @@ static inline SFValueType SFValueTypeTransform(const char *type){
         if ([NSClassFromString(name_) respondsToSelector:@selector(new)]) {
             name = name_;
         }
+        if (self.targetClassNameHandler) {
+            name = self.targetClassNameHandler(protocolName, name);
+        }
     }
     return name;
 }
@@ -87,17 +90,33 @@ static inline SFValueType SFValueTypeTransform(const char *type){
     switch (self.parserType) {
         case Array:
         case Dictionary:{
-            NSString *query = URL.query;
             NSMutableArray *array = (self.parserType == Array)?[NSMutableArray new]:nil;
             NSMutableDictionary *dictionary = (self.parserType == Dictionary)?[NSMutableDictionary new]:nil;
             parameter = (self.parserType == Array)?array:dictionary;
+            NSString __block *query = URL.query;
             if (query.length > 0) {
+                NSMutableDictionary *URLParameters = [NSMutableDictionary new];
+                if ([query containsString:@"("] && [query containsString:@")"]) {
+                    NSArray<NSString *> *URLComponents = [query componentsSeparatedByString:@"("];
+                    [URLComponents enumerateObjectsUsingBlock:^(NSString * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                        if (idx > 0) {
+                            NSArray *URLComponents1 = [obj componentsSeparatedByString:@")"];
+                            NSString *URLKey = [NSString stringWithFormat:@"(%@)",@(idx)];
+                            [URLParameters setObject:URLComponents1.firstObject forKey:URLKey];
+                            query = [query stringByReplacingOccurrencesOfString:URLComponents1.firstObject
+                                                                     withString:[@(idx) stringValue]];
+                        }
+                    }];
+                }
                 NSArray *components = [query componentsSeparatedByString:@"&"];
                 [components enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
                     NSArray *elements = [obj componentsSeparatedByString:@"="];
                     if (elements.count == 2) {
                         id value = elements.lastObject;
                         if ([value isKindOfClass:[NSString class]]) {
+                            if ([URLParameters.allKeys containsObject:value]) {
+                                value = URLParameters[value];
+                            }
                             NSString *string = (NSString *)value;
                             if (string.length == 0 || [string isEqualToString:@"null"]) {
                                 value = [NSNull null];
