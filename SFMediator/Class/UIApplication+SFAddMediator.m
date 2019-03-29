@@ -44,7 +44,7 @@ static inline BOOL SFMediatorSwizzleInstanceMethod(Class originalClass, Class ta
         if ([SFMediator sharedInstance].targetCount > 0) {
             //1.初始化接受UIApplicationDelegate的组件对象
 //            [[SFMediator sharedInstance].registerApplicationDelegateProtocols enumerateObjectsUsingBlock:^(Protocol * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-//                [SFMediator invokeTargetWithProtocol:obj];
+//                [SFMediator invokeTargetFromProtocol:obj];
 //            }];
             /*
               2.判断是否要交换UIApplicationDelegate协议里的方法

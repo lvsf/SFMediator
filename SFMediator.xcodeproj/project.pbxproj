@@ -7,10 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		17467B3E224DAAC700CE164A /* SFMediatorError.m in Sources */ = {isa = PBXBuildFile; fileRef = 17467B34224DAAC600CE164A /* SFMediatorError.m */; };
 		17467B3F224DAAC700CE164A /* SFMediator.m in Sources */ = {isa = PBXBuildFile; fileRef = 17467B36224DAAC600CE164A /* SFMediator.m */; };
 		17467B40224DAAC700CE164A /* SFMediatorParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 17467B3B224DAAC700CE164A /* SFMediatorParser.m */; };
 		17467B41224DAAC700CE164A /* UIApplication+SFAddMediator.m in Sources */ = {isa = PBXBuildFile; fileRef = 17467B3C224DAAC700CE164A /* UIApplication+SFAddMediator.m */; };
+		17467B47224DBD5500CE164A /* SFMediator+Demo.m in Sources */ = {isa = PBXBuildFile; fileRef = 17467B46224DBD5500CE164A /* SFMediator+Demo.m */; };
+		176CA902224E02B900B69B14 /* SFMediatorError.m in Sources */ = {isa = PBXBuildFile; fileRef = 176CA901224E02B900B69B14 /* SFMediatorError.m */; };
 		17710E2C1F5CE84000C69DF7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 17710E2B1F5CE84000C69DF7 /* main.m */; };
 		17710E351F5CE84000C69DF7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 17710E331F5CE84000C69DF7 /* Main.storyboard */; };
 		17710E371F5CE84000C69DF7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 17710E361F5CE84000C69DF7 /* Assets.xcassets */; };
@@ -23,8 +24,6 @@
 
 /* Begin PBXFileReference section */
 		172456D82085D4160008F06D /* CommonProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommonProtocol.h; sourceTree = "<group>"; };
-		17467B34224DAAC600CE164A /* SFMediatorError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SFMediatorError.m; path = ../../../QuanYou_developer/Lib/SF/SFMediator/SFMediatorError.m; sourceTree = "<group>"; };
-		17467B35224DAAC600CE164A /* SFMediatorError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SFMediatorError.h; path = ../../../QuanYou_developer/Lib/SF/SFMediator/SFMediatorError.h; sourceTree = "<group>"; };
 		17467B36224DAAC600CE164A /* SFMediator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SFMediator.m; sourceTree = "<group>"; };
 		17467B37224DAAC600CE164A /* SFMediator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SFMediator.h; sourceTree = "<group>"; };
 		17467B38224DAAC600CE164A /* SFMediatorParserProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SFMediatorParserProtocol.h; sourceTree = "<group>"; };
@@ -33,6 +32,10 @@
 		17467B3B224DAAC700CE164A /* SFMediatorParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SFMediatorParser.m; sourceTree = "<group>"; };
 		17467B3C224DAAC700CE164A /* UIApplication+SFAddMediator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIApplication+SFAddMediator.m"; sourceTree = "<group>"; };
 		17467B3D224DAAC700CE164A /* UIApplication+SFAddMediator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIApplication+SFAddMediator.h"; sourceTree = "<group>"; };
+		17467B45224DBD5500CE164A /* SFMediator+Demo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SFMediator+Demo.h"; sourceTree = "<group>"; };
+		17467B46224DBD5500CE164A /* SFMediator+Demo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "SFMediator+Demo.m"; sourceTree = "<group>"; };
+		176CA900224E02B900B69B14 /* SFMediatorError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SFMediatorError.h; sourceTree = "<group>"; };
+		176CA901224E02B900B69B14 /* SFMediatorError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SFMediatorError.m; sourceTree = "<group>"; };
 		17710E271F5CE84000C69DF7 /* SFMediator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SFMediator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		17710E2B1F5CE84000C69DF7 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		17710E341F5CE84000C69DF7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -102,10 +105,10 @@
 		179FE24A1F67AD2800CB6DD7 /* Class */ = {
 			isa = PBXGroup;
 			children = (
+				176CA900224E02B900B69B14 /* SFMediatorError.h */,
+				176CA901224E02B900B69B14 /* SFMediatorError.m */,
 				17467B37224DAAC600CE164A /* SFMediator.h */,
 				17467B36224DAAC600CE164A /* SFMediator.m */,
-				17467B35224DAAC600CE164A /* SFMediatorError.h */,
-				17467B34224DAAC600CE164A /* SFMediatorError.m */,
 				17467B39224DAAC700CE164A /* SFMediatorParser.h */,
 				17467B3B224DAAC700CE164A /* SFMediatorParser.m */,
 				17467B38224DAAC600CE164A /* SFMediatorParserProtocol.h */,
@@ -135,6 +138,8 @@
 				179FE2561F67AE6300CB6DD7 /* AppDelegate.m */,
 				179FE2591F67AE6300CB6DD7 /* ViewController.h */,
 				179FE25A1F67AE6300CB6DD7 /* ViewController.m */,
+				17467B45224DBD5500CE164A /* SFMediator+Demo.h */,
+				17467B46224DBD5500CE164A /* SFMediator+Demo.m */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -165,7 +170,7 @@
 		17710E1F1F5CE84000C69DF7 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0820;
+				LastUpgradeCheck = 1010;
 				ORGANIZATIONNAME = YunSL;
 				TargetAttributes = {
 					17710E261F5CE84000C69DF7 = {
@@ -211,11 +216,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				179FE25D1F67AE6300CB6DD7 /* ViewController.m in Sources */,
-				17467B3E224DAAC700CE164A /* SFMediatorError.m in Sources */,
 				179FE25B1F67AE6300CB6DD7 /* AppDelegate.m in Sources */,
 				17467B40224DAAC700CE164A /* SFMediatorParser.m in Sources */,
+				17467B47224DBD5500CE164A /* SFMediator+Demo.m in Sources */,
 				17467B41224DAAC700CE164A /* UIApplication+SFAddMediator.m in Sources */,
 				179FE2501F67AD6500CB6DD7 /* AppProtocol.h in Sources */,
+				176CA902224E02B900B69B14 /* SFMediatorError.m in Sources */,
 				17467B3F224DAAC700CE164A /* SFMediator.m in Sources */,
 				17710E2C1F5CE84000C69DF7 /* main.m in Sources */,
 				179FE25C1F67AE6300CB6DD7 /* AppProtocolTarget.m in Sources */,
@@ -253,15 +259,23 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -301,15 +315,23 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;

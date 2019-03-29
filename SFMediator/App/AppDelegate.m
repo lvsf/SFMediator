@@ -8,6 +8,7 @@
 
 #import "AppDelegate.h"
 #import "ViewController.h"
+#import "SFMediator+Demo.h"
 
 @interface AppDelegate ()
 @end
@@ -16,34 +17,35 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
    
-    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-    [self.window setBackgroundColor:[UIColor whiteColor]];
     [self.window makeKeyAndVisible];
     [self.window setRootViewController:[ViewController new]];
     
-    /*
     //配置SFMediator
-    [SFMediator sharedInstance].parser.invocationURLSchemes = @[@"demo"];
+    [SFMediator sharedInstance].parser.invocationRecognizedURLSchemes = @[@"demo"];
 
     //本地调用,为了方便调用和参数检验项目依赖于各组件对应的协议,协议根据需求由开发者和使用者共同维护或者只由某一方维护
-    [[SFMediator _AppProtocol] rootViewControllerWithText:@"root" count:10 number:3.1415926 model:[UISwitch new] enable:YES];
+    [[SFMediator app] rootViewControllerWithText:@"root" count:10 number:3.1415926 model:[UISwitch new] enable:YES];
 
-    //本地调用已声明但开发方尚未实现的方法
-    [[SFMediator _AppProtocol] printCurrentDate];
+    //本地调用已声明但尚未实现的方法
+    [[SFMediator app] printCurrentDate];
     
-    //本地调用,指定转发对象
-    [[SFMediator _UserProtocol] vc_home];
-    
-    //远程调用,为了不定义各种参数key,暂时按严格的顺序传递和获取参数
+    //远程调用,为了不定义各种参数key,按严格的顺序传递和获取参数
     NSString *switchUrl = @"demo://app/rootSwitch";
     NSString *url = [NSString stringWithFormat:@"demo://app/rootViewControllerWithText:count:number:model:enable:?t=root&c=10&n=3.1415926&m=%@&e=1",switchUrl];
-    [SFMediator openURL:url];
+    [[SFMediator sharedInstance] openURL:url];
     
     //远程调用,参数为空
-    [SFMediator openURL:@"demo://app/test:?a="];
+    [[SFMediator sharedInstance] openURL:@"demo://app/test:?a="];
+    
+    //自定义名称调用,parameterIndexKeys用来确定参数的顺序
+    [[SFMediator sharedInstance] mappedRoute:@"AppRootVC"
+                                       toSEL:@selector(rootViewControllerWithText:count:number:model:enable:)
+                                  atProtocol:@protocol(AppProtocol)];
+    [[SFMediator sharedInstance] openRoute:@"AppRootVC"
+                            withParameters:@{@"price":@(111.222),@"total":@(100),@"name":@"123"}
+                        parameterIndexKeys:@[@"name",@"total",@"price",@"model",@"enable"]];
     
     NSLog(@"[AppDelegate] didFinishLaunchingWithOptions");
-    */
      
     return YES;
 }
@@ -80,5 +82,13 @@
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 
+
+- (UIWindow *)window {
+    return _window?:({
+        _window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+        _window.backgroundColor = [UIColor whiteColor];
+        _window;
+    });
+}
 
 @end

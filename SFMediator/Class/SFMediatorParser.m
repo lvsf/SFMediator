@@ -52,11 +52,11 @@ static inline SFValueType SFValueTypeTransform(const char *type){
 };
 
 @implementation SFMediatorParser
-@synthesize invocationValidURLSchemes = _invocationValidURLSchemes;
+@synthesize invocationRecognizedURLSchemes = _invocationRecognizedURLSchemes;
 
 - (instancetype)init {
     if (self = [super init]) {
-        self.invocationValidURLSchemes = @[@"app"];
+        self.invocationRecognizedURLSchemes = @[@"app"];
         self.enableRecursiveParse = NO;
         self.parserType = Array;
     }
@@ -85,7 +85,7 @@ static inline SFValueType SFValueTypeTransform(const char *type){
     return NSSelectorFromString([URL.path stringByReplacingOccurrencesOfString:@"/" withString:@""]);
 }
 
-- (id)invocationParameterFromURL:(NSURL *)URL {
+- (id)invocationParametersFromURL:(NSURL *)URL {
     id parameter = nil;
     switch (self.parserType) {
         case Array:
@@ -122,8 +122,8 @@ static inline SFValueType SFValueTypeTransform(const char *type){
                                 value = [NSNull null];
                             }
                             else {
-                                if (self.enableRecursiveParse && [SFMediator canOpenURL:string]) {
-                                    value = [SFMediator openURL:string];
+                                if (self.enableRecursiveParse && [[SFMediator sharedInstance] canOpenURL:string]) {
+                                    value = [[SFMediator sharedInstance] openURL:string];
                                     value = value?:[NSNull null];
                                 }
                             }
@@ -146,10 +146,23 @@ static inline SFValueType SFValueTypeTransform(const char *type){
     return parameter;
 }
 
-- (void)invocation:(NSInvocation *)invocation setArgumentWithParameter:(id)parameter {
+- (id)invocationParametersFromParameters:(NSDictionary *)parameters parameterIndexKeys:(NSArray<NSString *> *)parameterIndexKeys {
+    NSMutableArray *indexParameters = [NSMutableArray new];
+    [parameterIndexKeys enumerateObjectsUsingBlock:^(NSString * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if ([parameters.allKeys containsObject:obj]) {
+            [indexParameters addObject:parameters[obj]];
+        }
+        else {
+            [indexParameters addObject:[NSNull null]];
+        }
+    }];
+    return indexParameters;
+}
+
+- (void)invocation:(NSInvocation *)invocation setArgumentWithParameters:(id)parameters {
     //此处使用NSArray保证参数的顺序
-    if ([parameter isKindOfClass:[NSArray class]]) {
-        [(NSArray *)parameter enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+    if ([parameters isKindOfClass:[NSArray class]]) {
+        [(NSArray *)parameters enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             switch (SFValueTypeTransform([invocation.methodSignature getArgumentTypeAtIndex:idx + 2])) {
                 case SFValueTypeBool:{
                     BOOL argument = NO;

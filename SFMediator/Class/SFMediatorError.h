@@ -10,14 +10,16 @@
 
 typedef NS_ENUM(NSInteger,SFMediatorErrorCode) {
     SFMediatorErrorCodeNotRecognizeScheme = 1,
-    SFMediatorErrorCodeNotRecognizeProtocolName = 2,
-    SFMediatorErrorCodeNotRecognizeSelector = 3,
-    SFMediatorErrorCodeInvalidInvocationTarget = 4
+    SFMediatorErrorCodeNotRecognizeRoute = 2,
+    SFMediatorErrorCodeNotRecognizeProtocolName = 3,
+    SFMediatorErrorCodeNotRecognizeSelector = 4,
+    SFMediatorErrorCodeInvalidInvocationTarget = 5
 };
 
 @interface SFMediatorError : NSObject
 @property (nonatomic,assign) BOOL fromURL;
 @property (nonatomic,assign) SFMediatorErrorCode code;
+@property (nonatomic,copy) NSString *route;
 @property (nonatomic,copy) NSURL *URL;
 @property (nonatomic,copy) NSString *protocolName;
 @property (nonatomic,copy) NSString *selectorName;
@@ -26,4 +28,8 @@ typedef NS_ENUM(NSInteger,SFMediatorErrorCode) {
                      protocolName:(NSString *)protocolName
                      selectorName:(NSString *)selectorName
                              code:(SFMediatorErrorCode)code;
++ (SFMediatorError *)errorWithRoute:(NSString *)route
+                       protocolName:(NSString *)protocolName
+                       selectorName:(NSString *)selectorName
+                               code:(SFMediatorErrorCode)code;
 @end

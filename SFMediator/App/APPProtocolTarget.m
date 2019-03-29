@@ -26,7 +26,7 @@
 
 - (UIViewController *)rootViewControllerWithText:(NSString *)text count:(NSInteger)count number:(CGFloat)number model:(id)model enable:(BOOL)enable {
     ViewController *rootViewController = [ViewController new];
-    NSLog(@"SEL:%@ text:%@ count:%@ number:%@ model:%@ enable:%@",NSStringFromSelector(_cmd),text,@(count),@(number),model,@(enable));
+    NSLog(@"[AppProtocolTarget] SEL:%@ text:%@ count:%@ number:%@ model:%@ enable:%@",NSStringFromSelector(_cmd),text,@(count),@(number),model,@(enable));
     return rootViewController;
 }
 

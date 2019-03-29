@@ -11,12 +11,13 @@
 #import "SFMediatorError.h"
 
 @protocol SFMediatorParserProtocol <NSObject>
+
 /**
  可远程响应的URL协议名
  
  @return URL协议名
  */
-@property (nonatomic,copy) NSArray<NSString *> *invocationValidURLSchemes;
+@property (nonatomic,copy) NSArray<NSString *> *invocationRecognizedURLSchemes;
 
 /**
  解析调用协议名
@@ -40,7 +41,16 @@
  @param URL -
  @return -
  */
-- (id)invocationParameterFromURL:(NSURL *)URL;
+- (id)invocationParametersFromURL:(NSURL *)URL;
+
+/**
+ 解析调用方法参数
+
+ @param parameters         参数
+ @param parameterIndexKeys 参数key值传入顺序
+ @return -
+ */
+- (id)invocationParametersFromParameters:(NSDictionary *)parameters parameterIndexKeys:(NSArray<NSString *> *)parameterIndexKeys;
 
 /**
  解析调用对象
@@ -51,18 +61,18 @@
 - (NSString *)invocationTargetClassNameFromProtocolName:(NSString *)protocolName;
 
 /**
- 设置调用参数
- 
- @param invocation 方法调用
- @param parameter  传入参数
+ 设置参数
+
+ @param invocation -
+ @param parameters -
  */
-- (void)invocation:(NSInvocation *)invocation setArgumentWithParameter:(id)parameter;
+- (void)invocation:(NSInvocation *)invocation setArgumentWithParameters:(id)parameters;
 
 /**
  调用和返回
- 
- @param invocation 方法调用
- @return           返回值
+
+ @param invocation 方法对象
+ @return 返回值
  */
 - (id)invoke:(NSInvocation *)invocation;
 

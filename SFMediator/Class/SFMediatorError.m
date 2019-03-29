@@ -14,7 +14,16 @@
 + (SFMediatorError *)errorWithURL:(NSURL *)URL protocolName:(NSString *)protocolName selectorName:(NSString *)selectorName code:(SFMediatorErrorCode)code {
     SFMediatorError *error = [SFMediatorError new];
     error.URL = URL;
-    error.fromURL = URL;
+    error.fromURL = (URL);
+    error.protocolName = protocolName;
+    error.selectorName = selectorName;
+    error.code = code;
+    return error;
+}
+
++ (SFMediatorError *)errorWithRoute:(NSString *)route protocolName:(NSString *)protocolName selectorName:(NSString *)selectorName code:(SFMediatorErrorCode)code {
+    SFMediatorError *error = [SFMediatorError new];
+    error.route = route;
     error.protocolName = protocolName;
     error.selectorName = selectorName;
     error.code = code;
@@ -26,6 +35,9 @@
         switch (_code) {
             case SFMediatorErrorCodeNotRecognizeScheme:
                 _message = [NSString stringWithFormat:@"无法响应的scheme:%@",_URL.scheme];
+                break;
+            case SFMediatorErrorCodeNotRecognizeRoute:
+                _message = [NSString stringWithFormat:@"无法响应的route:%@",_route];
                 break;
             case SFMediatorErrorCodeNotRecognizeProtocolName:
                 _message = [NSString stringWithFormat:@"无法响应的protocol:%@",_protocolName];
