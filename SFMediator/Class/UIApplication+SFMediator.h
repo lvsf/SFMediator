@@ -1,5 +1,5 @@
 //
-//  UIApplication+SFAddMediator.h
+//  UIApplication+SFMediator.h
 //  SFProject
 //
 //  Created by YunSL on 2018/3/23.
@@ -8,5 +8,5 @@
 
 #import <UIKit/UIKit.h>
 
-@interface UIApplication (SFAddMediator)
+@interface UIApplication (SFMediator)
 @end

@@ -13,10 +13,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#define SFMediatorTargetInterface(protocol,name) + (id<protocol>)name;
-#define SFMediatorTargetImplementation(protocol_,name) + (id<protocol_>)name {\
-    return [[SFMediator sharedInstance] invokeTargetFromProtocol:@protocol(protocol_)];}
-
 @interface SFMediator (Demo)
 SFMediatorTargetInterface(CommonProtocol, common)
 SFMediatorTargetInterface(AppProtocol, app)

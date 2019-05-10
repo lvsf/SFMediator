@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		17467B3F224DAAC700CE164A /* SFMediator.m in Sources */ = {isa = PBXBuildFile; fileRef = 17467B36224DAAC600CE164A /* SFMediator.m */; };
 		17467B40224DAAC700CE164A /* SFMediatorParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 17467B3B224DAAC700CE164A /* SFMediatorParser.m */; };
-		17467B41224DAAC700CE164A /* UIApplication+SFAddMediator.m in Sources */ = {isa = PBXBuildFile; fileRef = 17467B3C224DAAC700CE164A /* UIApplication+SFAddMediator.m */; };
+		17467B41224DAAC700CE164A /* UIApplication+SFMediator.m in Sources */ = {isa = PBXBuildFile; fileRef = 17467B3C224DAAC700CE164A /* UIApplication+SFMediator.m */; };
 		17467B47224DBD5500CE164A /* SFMediator+Demo.m in Sources */ = {isa = PBXBuildFile; fileRef = 17467B46224DBD5500CE164A /* SFMediator+Demo.m */; };
 		176CA902224E02B900B69B14 /* SFMediatorError.m in Sources */ = {isa = PBXBuildFile; fileRef = 176CA901224E02B900B69B14 /* SFMediatorError.m */; };
 		17710E2C1F5CE84000C69DF7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 17710E2B1F5CE84000C69DF7 /* main.m */; };
@@ -30,8 +30,8 @@
 		17467B39224DAAC700CE164A /* SFMediatorParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SFMediatorParser.h; sourceTree = "<group>"; };
 		17467B3A224DAAC700CE164A /* SFMediatorTargetProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SFMediatorTargetProtocol.h; sourceTree = "<group>"; };
 		17467B3B224DAAC700CE164A /* SFMediatorParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SFMediatorParser.m; sourceTree = "<group>"; };
-		17467B3C224DAAC700CE164A /* UIApplication+SFAddMediator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIApplication+SFAddMediator.m"; sourceTree = "<group>"; };
-		17467B3D224DAAC700CE164A /* UIApplication+SFAddMediator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIApplication+SFAddMediator.h"; sourceTree = "<group>"; };
+		17467B3C224DAAC700CE164A /* UIApplication+SFMediator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIApplication+SFMediator.m"; sourceTree = "<group>"; };
+		17467B3D224DAAC700CE164A /* UIApplication+SFMediator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIApplication+SFMediator.h"; sourceTree = "<group>"; };
 		17467B45224DBD5500CE164A /* SFMediator+Demo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SFMediator+Demo.h"; sourceTree = "<group>"; };
 		17467B46224DBD5500CE164A /* SFMediator+Demo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "SFMediator+Demo.m"; sourceTree = "<group>"; };
 		176CA900224E02B900B69B14 /* SFMediatorError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SFMediatorError.h; sourceTree = "<group>"; };
@@ -113,8 +113,8 @@
 				17467B3B224DAAC700CE164A /* SFMediatorParser.m */,
 				17467B38224DAAC600CE164A /* SFMediatorParserProtocol.h */,
 				17467B3A224DAAC700CE164A /* SFMediatorTargetProtocol.h */,
-				17467B3D224DAAC700CE164A /* UIApplication+SFAddMediator.h */,
-				17467B3C224DAAC700CE164A /* UIApplication+SFAddMediator.m */,
+				17467B3D224DAAC700CE164A /* UIApplication+SFMediator.h */,
+				17467B3C224DAAC700CE164A /* UIApplication+SFMediator.m */,
 			);
 			path = Class;
 			sourceTree = "<group>";
@@ -219,7 +219,7 @@
 				179FE25B1F67AE6300CB6DD7 /* AppDelegate.m in Sources */,
 				17467B40224DAAC700CE164A /* SFMediatorParser.m in Sources */,
 				17467B47224DBD5500CE164A /* SFMediator+Demo.m in Sources */,
-				17467B41224DAAC700CE164A /* UIApplication+SFAddMediator.m in Sources */,
+				17467B41224DAAC700CE164A /* UIApplication+SFMediator.m in Sources */,
 				179FE2501F67AD6500CB6DD7 /* AppProtocol.h in Sources */,
 				176CA902224E02B900B69B14 /* SFMediatorError.m in Sources */,
 				17467B3F224DAAC700CE164A /* SFMediator.m in Sources */,

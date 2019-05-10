@@ -15,11 +15,19 @@
 
 @implementation AppDelegate
 
+- (void)application:(UIApplication *)application didChangeStatusBarFrame:(CGRect)oldStatusBarFrame {
+    NSLog(@"[AppDelegate] didChangeStatusBarFrame:%@",NSStringFromCGRect(oldStatusBarFrame));
+}
+
+- (UIInterfaceOrientationMask)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window {
+    return UIInterfaceOrientationMaskPortrait;
+}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
    
     [self.window makeKeyAndVisible];
     [self.window setRootViewController:[ViewController new]];
-    
+    /*
     //配置SFMediator
     [SFMediator sharedInstance].parser.invocationRecognizedURLSchemes = @[@"demo"];
 
@@ -46,6 +54,8 @@
                         parameterIndexKeys:@[@"name",@"total",@"price",@"model",@"enable"]];
     
     NSLog(@"[AppDelegate] didFinishLaunchingWithOptions");
+    
+   */
      
     return YES;
 }
@@ -89,6 +99,10 @@
         _window.backgroundColor = [UIColor whiteColor];
         _window;
     });
+}
+
+- (id)forwardingTargetForSelector:(SEL)aSelector {
+    return [super forwardingTargetForSelector:aSelector];
 }
 
 @end

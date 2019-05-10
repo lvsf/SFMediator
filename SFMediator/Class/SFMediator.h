@@ -9,6 +9,10 @@
 #import "SFMediatorParserProtocol.h"
 #import "SFMediatorError.h"
 
+#define SFMediatorTargetInterface(protocol,name) + (id<protocol>)name;
+#define SFMediatorTargetImplementation(protocol_,name) + (id<protocol_>)name {\
+return [[SFMediator sharedInstance] invokeTargetFromProtocol:@protocol(protocol_)];}
+
 extern BOOL SFMediatorShouldSwizzleSEL(SEL originalSEL);
 extern SEL SFMediatorSwizzleSEL(SEL originalSEL);
 
