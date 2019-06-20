@@ -15,11 +15,19 @@
 
 @implementation AppDelegate
 
+- (instancetype)init {
+    if (self = [super init]) {
+        [SFMediator app].respondToApplicationDelegate = YES;
+    }
+    return self;
+}
+
 - (void)application:(UIApplication *)application didChangeStatusBarFrame:(CGRect)oldStatusBarFrame {
     NSLog(@"[AppDelegate] didChangeStatusBarFrame:%@",NSStringFromCGRect(oldStatusBarFrame));
 }
 
 - (UIInterfaceOrientationMask)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window {
+    NSLog(@"[AppDelegate] %@",NSStringFromSelector(_cmd));
     return UIInterfaceOrientationMaskPortrait;
 }
 
@@ -27,6 +35,7 @@
    
     [self.window makeKeyAndVisible];
     [self.window setRootViewController:[ViewController new]];
+    
     /*
     //配置SFMediator
     [SFMediator sharedInstance].parser.invocationRecognizedURLSchemes = @[@"demo"];

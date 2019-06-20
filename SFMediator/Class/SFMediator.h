@@ -6,7 +6,9 @@
 //  Copyright © 2017年 YunSL. All rights reserved.
 //
 
+#import <UIKit/UIKit.h>
 #import "SFMediatorParserProtocol.h"
+#import "SFMediatorTargetProtocol.h"
 #import "SFMediatorError.h"
 
 #define SFMediatorTargetInterface(protocol,name) + (id<protocol>)name;
@@ -18,17 +20,12 @@ extern SEL SFMediatorSwizzleSEL(SEL originalSEL);
 
 @interface SFMediator : NSObject
 
-@property (nonatomic,assign,readonly) NSInteger targetCount;
-
-/**
- 注册需要接受UIApplicationDelegate的协议
- */
-@property (nonatomic,copy) NSArray<Protocol *> *registerApplicationDelegateProtocols;
-
 /**
  解析对象
  */
 @property (nonatomic,strong) id <SFMediatorParserProtocol> parser;
+
+@property (nonatomic,copy,readonly) NSArray<id<SFMediatorTargetProtocol>> *allTargets;
 
 /**
  单例对象

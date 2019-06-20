@@ -8,48 +8,8 @@
 
 #import "SFMediatorParser.h"
 #import "SFMediator.h"
+#import "NSInvocation+SFAdd.h"
 #import <objc/runtime.h>
-
-typedef NS_ENUM(NSInteger,SFValueType) {
-    SFValueTypeNo = 0,
-    SFValueTypeVoid,
-    SFValueTypeChar,
-    SFValueTypeInt,
-    SFValueTypeLong,
-    SFValueTypeFloat,
-    SFValueTypeDouble,
-    SFValueTypeBool,
-    SFValueTypeSelector,
-    SFValueObject,
-    SFValueTypeCGPoint,
-    SFValueTypeCGSize,
-    SFValueTypeCGRect,
-    SFValueTypePointer
-};
-
-static inline SFValueType SFValueTypeTransform(const char *type){
-    if (strcmp(type, @encode(void)) == 0) {
-        return SFValueTypeVoid;
-    } else if (strcmp(type, @encode(BOOL)) == 0) {
-        return SFValueTypeBool;
-    } else if (strcmp(type, @encode(int)) == 0) {
-        return SFValueTypeInt;
-    } else if (strcmp(type, @encode(long)) == 0) {
-        return SFValueTypeLong;
-    } else if (strcmp(type, @encode(float)) == 0) {
-        return SFValueTypeFloat;
-    } else if (strcmp(type, @encode(double)) == 0) {
-        return SFValueTypeDouble;
-    } else if (strcmp(type, @encode(CGPoint)) == 0) {
-        return SFValueTypeCGPoint;
-    } else if (strcmp(type, @encode(CGSize)) == 0) {
-        return SFValueTypeCGSize;
-    } else if (strcmp(type, @encode(CGRect)) == 0) {
-        return SFValueTypeCGRect;
-    } else {
-        return SFValueObject;
-    }
-};
 
 @implementation SFMediatorParser
 @synthesize invocationRecognizedURLSchemes = _invocationRecognizedURLSchemes;
@@ -163,115 +123,13 @@ static inline SFValueType SFValueTypeTransform(const char *type){
     //此处使用NSArray保证参数的顺序
     if ([parameters isKindOfClass:[NSArray class]]) {
         [(NSArray *)parameters enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            switch (SFValueTypeTransform([invocation.methodSignature getArgumentTypeAtIndex:idx + 2])) {
-                case SFValueTypeBool:{
-                    BOOL argument = NO;
-                    if (![obj isEqual:[NSNull null]]) {
-                        argument = [obj boolValue];;
-                    }
-                    [invocation setArgument:&argument atIndex:idx + 2];
-                }
-                    break;
-                case SFValueTypeInt:
-                case SFValueTypeLong:{
-                    NSInteger argument = 0;
-                    if (![obj isEqual:[NSNull null]]) {
-                        argument = [obj integerValue];;
-                    }
-                    [invocation setArgument:&argument atIndex:idx + 2];
-                }
-                    break;
-                case SFValueTypeFloat:{
-                    float argument = 0.0;
-                    if (![obj isEqual:[NSNull null]]) {
-                        argument = [obj floatValue];
-                    }
-                    [invocation setArgument:&argument atIndex:idx + 2];
-                }
-                    break;
-                case SFValueTypeDouble:{
-                    double argument = 0.0;
-                    if (![obj isEqual:[NSNull null]]) {
-                        argument = [obj doubleValue];
-                    }
-                    [invocation setArgument:&argument atIndex:idx + 2];
-                }
-                    break;
-                default:{
-                    if (![obj isEqual:[NSNull null]]) {
-                        id argument = obj;
-                        [invocation setArgument:&argument atIndex:idx + 2];
-                    }
-                }
-                    break;
-            }
+            [invocation lv_setArgument:obj atIndex:idx + 2];
         }];
     }
 }
 
 - (id)invoke:(NSInvocation *)invocation {
-    //暂时处理返回为void,BOOL,NSInteger,CGFloat,CGSize,CGRect,CGPoint的调用,其他视为返回NSObject对象处理
-    id returnValue = nil;
-    const char *returnType = [invocation.methodSignature methodReturnType];
-    switch (SFValueTypeTransform(returnType)) {
-        case SFValueTypeVoid:{
-            [invocation invoke];
-            returnValue = nil;
-        }
-            break;
-        case SFValueTypeBool:{
-            BOOL result = NO;
-            [invocation invoke];
-            [invocation getReturnValue:&result];
-            returnValue = @(result);
-        }
-            break;
-        case SFValueTypeInt:
-        case SFValueTypeLong:{
-            NSInteger result = 0;
-            [invocation invoke];
-            [invocation getReturnValue:&result];
-            returnValue = @(result);
-        }
-            break;
-        case SFValueTypeFloat:
-        case SFValueTypeDouble:{
-            CGFloat result = 0.0;
-            [invocation invoke];
-            [invocation getReturnValue:&result];
-            returnValue = @(result);
-        }
-            break;
-        case SFValueTypeCGPoint:{
-            CGPoint result = CGPointZero;
-            [invocation invoke];
-            [invocation getReturnValue:&result];
-            returnValue = [NSValue valueWithCGPoint:result];
-        }
-            break;
-        case SFValueTypeCGSize:{
-            CGSize result = CGSizeZero;
-            [invocation invoke];
-            [invocation getReturnValue:&result];
-            returnValue = [NSValue valueWithCGSize:result];
-        }
-            break;
-        case SFValueTypeCGRect:{
-            CGRect result = CGRectZero;
-            [invocation invoke];
-            [invocation getReturnValue:&result];
-            returnValue = [NSValue valueWithCGRect:result];
-        }
-            break;
-        default:{
-            __autoreleasing NSObject *result = nil;
-            [invocation invoke];
-            [invocation getReturnValue:&result];
-            returnValue = result;
-        }
-            break;
-    }
-    return returnValue;
+    return [invocation lv_invoke];
 }
 
 - (void)invokeFailureWithError:(SFMediatorError *)error {

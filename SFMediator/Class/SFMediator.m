@@ -264,89 +264,7 @@ static inline void SFMediatorLog(NSString *message) {
         [self.parser invokeFailureWithError:error];
     }
 }
-
-#pragma mark - UIApplicationDelegate方法转发处理
-- (void)sf_mediator_forwardInvocation:(NSInvocation *)anInvocation {
-    if (SFMediatorShouldSwizzleSEL(anInvocation.selector)) {
-        //此处将原实现放到最后调用，返回值将使用最后的调用结果，如果原实现是为了接受代理事件而手动添加的空操作将会返回一个不理想的结果
-        //修改方法:判断原本是否实现了对应的方法，如果有使用原实现的返回值，否则根据具体情况选择要使用哪个调用的返回值
-        [[SFMediator sharedInstance].targets enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-            if ([obj respondsToSelector:anInvocation.selector]) {
-                [anInvocation invokeWithTarget:obj];
-            }
-        }];
-        SEL tempSEL = anInvocation.selector;
-        SEL swizzleSEL = SFMediatorSwizzleSEL(tempSEL);
-        if ([self respondsToSelector:swizzleSEL]) {
-            [anInvocation setSelector:swizzleSEL];
-            [anInvocation invokeWithTarget:self];
-            [anInvocation setSelector:tempSEL];
-        }
-    }
-    else {
-        [self sf_mediator_forwardInvocation:anInvocation];
-    }
-}
-
-#pragma mark - APP启动
-- (BOOL)sf_mediator_application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    [self sf_mediator_application:application didFinishLaunchingWithOptions:launchOptions];
-    [[SFMediator sharedInstance].targets enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        if ([obj respondsToSelector:@selector(application:didFinishLaunchingWithOptions:)]) {
-            [obj application:application didFinishLaunchingWithOptions:launchOptions];
-        }
-    }];
-    return YES;
-}
-
-#pragma mark - 外部URL处理
-//iOS9
-- (BOOL)sf_mediator_application:(UIApplication *)application openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
-    __block BOOL result = NO;
-    [[SFMediator sharedInstance].targets enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        if (@available(iOS 9.0, *)) {
-            if ([obj respondsToSelector:@selector(application:openURL:options:)]) {
-                result = (result || [obj application:application openURL:url options:options]);
-            }
-        }
-    }];
-    result = result || [self sf_mediator_application:application openURL:url options:options];
-    return result;
-}
-
-//iOS4.2-iOS9
-- (BOOL)sf_mediator_application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
-    __block BOOL result = NO;
-    [[SFMediator sharedInstance].targets enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        if ([obj respondsToSelector:@selector(application:openURL:sourceApplication:annotation:)]) {
-            result = (result || [obj application:application openURL:url sourceApplication:sourceApplication annotation:annotation]);
-        }
-    }];
-    result = result || [self sf_mediator_application:application openURL:url sourceApplication:sourceApplication annotation:annotation];
-    return result;
-}
-
-//iOS2-iOS9
-- (BOOL)sf_mediator_application:(UIApplication *)application handleOpenURL:(NSURL *)url {
-    __block BOOL result = NO;
-    [[SFMediator sharedInstance].targets enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        if ([obj respondsToSelector:@selector(application:handleOpenURL:)]) {
-            result = (result || [obj application:application handleOpenURL:url]);
-        }
-    }];
-    result = result || [self sf_mediator_application:application handleOpenURL:url];
-    return result;
-}
-
-- (void)sf_mediator_application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-    [[SFMediator sharedInstance].targets enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        if ([obj respondsToSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)]) {
-            [obj application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
-        }
-    }];
-    [self sf_mediator_application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
-}
-
+ 
 #pragma mark - set/get
 - (id<SFMediatorParserProtocol>)parser {
     return _parser?:({
@@ -376,8 +294,8 @@ static inline void SFMediatorLog(NSString *message) {
     });
 }
 
-- (NSInteger)targetCount {
-    return _targets.count;
+- (NSArray<id<SFMediatorTargetProtocol>> *)allTargets {
+    return self.targets.allValues;
 }
 
 @end

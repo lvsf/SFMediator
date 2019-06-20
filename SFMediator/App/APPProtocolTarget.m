@@ -11,6 +11,7 @@
 #import "SFMediator.h"
 
 @implementation AppProtocolTarget
+@synthesize respondToApplicationDelegate = _respondToApplicationDelegate;
 
 - (UISwitch *)rootSwitch {
     return [UISwitch new];
@@ -41,6 +42,16 @@
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     NSLog(@"[AppProtocolTarget] applicationDidBecomeActive");
+}
+
+- (UIInterfaceOrientationMask)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(UIWindow *)window {
+    NSLog(@"[AppProtocolTarget] %@",NSStringFromSelector(_cmd));
+    return UIInterfaceOrientationMaskAll;
+}
+
+- (NSArray<NSString *> *)ingoreApplicationDelegateSelectorName {
+    return @[NSStringFromSelector(@selector(application:supportedInterfaceOrientationsForWindow:)),
+             NSStringFromSelector(@selector(application:didChangeStatusBarFrame:))];
 }
 
 @end

@@ -7,6 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "SFApplicationMultipleProxy.h"
 
 @interface UIApplication (SFMediator)
+@property (nonatomic,strong,readonly) SFApplicationMultipleProxy<UIApplicationDelegate> *lv_multipleProxy;
 @end
