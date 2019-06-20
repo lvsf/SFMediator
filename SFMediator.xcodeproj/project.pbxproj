@@ -113,18 +113,18 @@
 			children = (
 				17467B38224DAAC600CE164A /* SFMediatorParserProtocol.h */,
 				17467B3A224DAAC700CE164A /* SFMediatorTargetProtocol.h */,
-				174E645922BB15A1007B0819 /* NSInvocation+SFAdd.h */,
-				174E645A22BB15A1007B0819 /* NSInvocation+SFAdd.m */,
-				170F14A722BA321B003ED9C8 /* SFApplicationMultipleProxy.h */,
-				170F14A822BA321B003ED9C8 /* SFApplicationMultipleProxy.m */,
 				17467B37224DAAC600CE164A /* SFMediator.h */,
 				17467B36224DAAC600CE164A /* SFMediator.m */,
 				176CA900224E02B900B69B14 /* SFMediatorError.h */,
 				176CA901224E02B900B69B14 /* SFMediatorError.m */,
 				17467B39224DAAC700CE164A /* SFMediatorParser.h */,
 				17467B3B224DAAC700CE164A /* SFMediatorParser.m */,
+				170F14A722BA321B003ED9C8 /* SFApplicationMultipleProxy.h */,
+				170F14A822BA321B003ED9C8 /* SFApplicationMultipleProxy.m */,
 				17467B3D224DAAC700CE164A /* UIApplication+SFMediator.h */,
 				17467B3C224DAAC700CE164A /* UIApplication+SFMediator.m */,
+				174E645922BB15A1007B0819 /* NSInvocation+SFAdd.h */,
+				174E645A22BB15A1007B0819 /* NSInvocation+SFAdd.m */,
 			);
 			path = Class;
 			sourceTree = "<group>";

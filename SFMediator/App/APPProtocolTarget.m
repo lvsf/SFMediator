@@ -49,7 +49,7 @@
     return UIInterfaceOrientationMaskAll;
 }
 
-- (NSArray<NSString *> *)ingoreApplicationDelegateSelectorName {
+- (NSArray<NSString *> *)ingoreApplicationDelegateSelectorNames {
     return @[NSStringFromSelector(@selector(application:supportedInterfaceOrientationsForWindow:)),
              NSStringFromSelector(@selector(application:didChangeStatusBarFrame:))];
 }

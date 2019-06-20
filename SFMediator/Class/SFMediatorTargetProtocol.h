@@ -12,5 +12,5 @@
 @property (nonatomic,assign) BOOL respondToApplicationDelegate;
 @optional
 //不主动响应的UIApplicationDelegate方法以方便手动处理决定返回结果
-- (NSArray<NSString *> *)ingoreApplicationDelegateSelectorName;
+- (NSArray<NSString *> *)ingoreApplicationDelegateSelectorNames;
 @end

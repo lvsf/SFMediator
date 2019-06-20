@@ -83,8 +83,8 @@
         BOOL responds = ([obj respondsToSelector:invocation.selector]);
         if (responds) {
             if ([obj conformsToProtocol:@protocol(UIApplicationDelegate)] &&
-                [obj respondsToSelector:@selector(ingoreApplicationDelegateSelectorName)]) {
-                if ([[obj ingoreApplicationDelegateSelectorName] containsObject:NSStringFromSelector(invocation.selector)]) {
+                [obj respondsToSelector:@selector(ingoreApplicationDelegateSelectorNames)]) {
+                if ([[obj ingoreApplicationDelegateSelectorNames] containsObject:NSStringFromSelector(invocation.selector)]) {
                     responds = NO;
                 }
             }
